@@ -1,0 +1,69 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <PulseKit:pulsekit-sync>
+abstract interface io.github.alirezajavan.pulsekit.sync/SyncUploader { // io.github.alirezajavan.pulsekit.sync/SyncUploader|null[0]
+    abstract suspend fun upload(kotlin.collections/List<io.github.alirezajavan.pulsekit.core.db/SensorEventLog>): kotlin/Boolean // io.github.alirezajavan.pulsekit.sync/SyncUploader.upload|upload(kotlin.collections.List<io.github.alirezajavan.pulsekit.core.db.SensorEventLog>){}[0]
+}
+
+final class io.github.alirezajavan.pulsekit.sync/JsonHttpSyncUploader : io.github.alirezajavan.pulsekit.sync/SyncUploader { // io.github.alirezajavan.pulsekit.sync/JsonHttpSyncUploader|null[0]
+    constructor <init>(io.ktor.client/HttpClient, kotlin/String) // io.github.alirezajavan.pulsekit.sync/JsonHttpSyncUploader.<init>|<init>(io.ktor.client.HttpClient;kotlin.String){}[0]
+
+    final suspend fun upload(kotlin.collections/List<io.github.alirezajavan.pulsekit.core.db/SensorEventLog>): kotlin/Boolean // io.github.alirezajavan.pulsekit.sync/JsonHttpSyncUploader.upload|upload(kotlin.collections.List<io.github.alirezajavan.pulsekit.core.db.SensorEventLog>){}[0]
+}
+
+final class io.github.alirezajavan.pulsekit.sync/SyncConfig { // io.github.alirezajavan.pulsekit.sync/SyncConfig|null[0]
+    constructor <init>(kotlin/Int = ..., kotlin/Long = ..., kotlin/Long = ..., kotlin/Long = ...) // io.github.alirezajavan.pulsekit.sync/SyncConfig.<init>|<init>(kotlin.Int;kotlin.Long;kotlin.Long;kotlin.Long){}[0]
+
+    final val batchSize // io.github.alirezajavan.pulsekit.sync/SyncConfig.batchSize|{}batchSize[0]
+        final fun <get-batchSize>(): kotlin/Int // io.github.alirezajavan.pulsekit.sync/SyncConfig.batchSize.<get-batchSize>|<get-batchSize>(){}[0]
+    final val idlePollIntervalMillis // io.github.alirezajavan.pulsekit.sync/SyncConfig.idlePollIntervalMillis|{}idlePollIntervalMillis[0]
+        final fun <get-idlePollIntervalMillis>(): kotlin/Long // io.github.alirezajavan.pulsekit.sync/SyncConfig.idlePollIntervalMillis.<get-idlePollIntervalMillis>|<get-idlePollIntervalMillis>(){}[0]
+    final val initialBackoffMillis // io.github.alirezajavan.pulsekit.sync/SyncConfig.initialBackoffMillis|{}initialBackoffMillis[0]
+        final fun <get-initialBackoffMillis>(): kotlin/Long // io.github.alirezajavan.pulsekit.sync/SyncConfig.initialBackoffMillis.<get-initialBackoffMillis>|<get-initialBackoffMillis>(){}[0]
+    final val maxBackoffMillis // io.github.alirezajavan.pulsekit.sync/SyncConfig.maxBackoffMillis|{}maxBackoffMillis[0]
+        final fun <get-maxBackoffMillis>(): kotlin/Long // io.github.alirezajavan.pulsekit.sync/SyncConfig.maxBackoffMillis.<get-maxBackoffMillis>|<get-maxBackoffMillis>(){}[0]
+
+    final fun component1(): kotlin/Int // io.github.alirezajavan.pulsekit.sync/SyncConfig.component1|component1(){}[0]
+    final fun component2(): kotlin/Long // io.github.alirezajavan.pulsekit.sync/SyncConfig.component2|component2(){}[0]
+    final fun component3(): kotlin/Long // io.github.alirezajavan.pulsekit.sync/SyncConfig.component3|component3(){}[0]
+    final fun component4(): kotlin/Long // io.github.alirezajavan.pulsekit.sync/SyncConfig.component4|component4(){}[0]
+    final fun copy(kotlin/Int = ..., kotlin/Long = ..., kotlin/Long = ..., kotlin/Long = ...): io.github.alirezajavan.pulsekit.sync/SyncConfig // io.github.alirezajavan.pulsekit.sync/SyncConfig.copy|copy(kotlin.Int;kotlin.Long;kotlin.Long;kotlin.Long){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.github.alirezajavan.pulsekit.sync/SyncConfig.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.github.alirezajavan.pulsekit.sync/SyncConfig.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.github.alirezajavan.pulsekit.sync/SyncConfig.toString|toString(){}[0]
+}
+
+final class io.github.alirezajavan.pulsekit.sync/SyncEngine { // io.github.alirezajavan.pulsekit.sync/SyncEngine|null[0]
+    constructor <init>(io.github.alirezajavan.pulsekit.core/SyncSource, io.github.alirezajavan.pulsekit.sync/SyncUploader, io.github.alirezajavan.pulsekit.sync/SyncConfig = ..., io.github.alirezajavan.pulsekit.core/PulseKitLogger = ...) // io.github.alirezajavan.pulsekit.sync/SyncEngine.<init>|<init>(io.github.alirezajavan.pulsekit.core.SyncSource;io.github.alirezajavan.pulsekit.sync.SyncUploader;io.github.alirezajavan.pulsekit.sync.SyncConfig;io.github.alirezajavan.pulsekit.core.PulseKitLogger){}[0]
+
+    final fun observeState(): kotlinx.coroutines.flow/StateFlow<io.github.alirezajavan.pulsekit.sync/SyncState> // io.github.alirezajavan.pulsekit.sync/SyncEngine.observeState|observeState(){}[0]
+    final fun start(kotlinx.coroutines/CoroutineScope) // io.github.alirezajavan.pulsekit.sync/SyncEngine.start|start(kotlinx.coroutines.CoroutineScope){}[0]
+    final fun stop() // io.github.alirezajavan.pulsekit.sync/SyncEngine.stop|stop(){}[0]
+}
+
+final class io.github.alirezajavan.pulsekit.sync/SyncState { // io.github.alirezajavan.pulsekit.sync/SyncState|null[0]
+    constructor <init>(kotlin/Boolean = ..., kotlin/Long? = ..., kotlin/String? = ..., kotlin/Int = ...) // io.github.alirezajavan.pulsekit.sync/SyncState.<init>|<init>(kotlin.Boolean;kotlin.Long?;kotlin.String?;kotlin.Int){}[0]
+
+    final val consecutiveFailures // io.github.alirezajavan.pulsekit.sync/SyncState.consecutiveFailures|{}consecutiveFailures[0]
+        final fun <get-consecutiveFailures>(): kotlin/Int // io.github.alirezajavan.pulsekit.sync/SyncState.consecutiveFailures.<get-consecutiveFailures>|<get-consecutiveFailures>(){}[0]
+    final val isSyncing // io.github.alirezajavan.pulsekit.sync/SyncState.isSyncing|{}isSyncing[0]
+        final fun <get-isSyncing>(): kotlin/Boolean // io.github.alirezajavan.pulsekit.sync/SyncState.isSyncing.<get-isSyncing>|<get-isSyncing>(){}[0]
+    final val lastError // io.github.alirezajavan.pulsekit.sync/SyncState.lastError|{}lastError[0]
+        final fun <get-lastError>(): kotlin/String? // io.github.alirezajavan.pulsekit.sync/SyncState.lastError.<get-lastError>|<get-lastError>(){}[0]
+    final val lastSuccessTimestampMillis // io.github.alirezajavan.pulsekit.sync/SyncState.lastSuccessTimestampMillis|{}lastSuccessTimestampMillis[0]
+        final fun <get-lastSuccessTimestampMillis>(): kotlin/Long? // io.github.alirezajavan.pulsekit.sync/SyncState.lastSuccessTimestampMillis.<get-lastSuccessTimestampMillis>|<get-lastSuccessTimestampMillis>(){}[0]
+
+    final fun component1(): kotlin/Boolean // io.github.alirezajavan.pulsekit.sync/SyncState.component1|component1(){}[0]
+    final fun component2(): kotlin/Long? // io.github.alirezajavan.pulsekit.sync/SyncState.component2|component2(){}[0]
+    final fun component3(): kotlin/String? // io.github.alirezajavan.pulsekit.sync/SyncState.component3|component3(){}[0]
+    final fun component4(): kotlin/Int // io.github.alirezajavan.pulsekit.sync/SyncState.component4|component4(){}[0]
+    final fun copy(kotlin/Boolean = ..., kotlin/Long? = ..., kotlin/String? = ..., kotlin/Int = ...): io.github.alirezajavan.pulsekit.sync/SyncState // io.github.alirezajavan.pulsekit.sync/SyncState.copy|copy(kotlin.Boolean;kotlin.Long?;kotlin.String?;kotlin.Int){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.github.alirezajavan.pulsekit.sync/SyncState.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.github.alirezajavan.pulsekit.sync/SyncState.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.github.alirezajavan.pulsekit.sync/SyncState.toString|toString(){}[0]
+}

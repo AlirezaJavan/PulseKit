@@ -1,0 +1,46 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <PulseKit:pulsekit-compose-permissions>
+final class io.github.alirezajavan.pulsekit.compose.permissions/DataSourcePermissionState { // io.github.alirezajavan.pulsekit.compose.permissions/DataSourcePermissionState|null[0]
+    final val canCollect // io.github.alirezajavan.pulsekit.compose.permissions/DataSourcePermissionState.canCollect|{}canCollect[0]
+        final fun <get-canCollect>(): kotlin/Boolean // io.github.alirezajavan.pulsekit.compose.permissions/DataSourcePermissionState.canCollect.<get-canCollect>|<get-canCollect>(){}[0]
+    final val isRequesting // io.github.alirezajavan.pulsekit.compose.permissions/DataSourcePermissionState.isRequesting|{}isRequesting[0]
+        final fun <get-isRequesting>(): kotlin/Boolean // io.github.alirezajavan.pulsekit.compose.permissions/DataSourcePermissionState.isRequesting.<get-isRequesting>|<get-isRequesting>(){}[0]
+    final val missingOptional // io.github.alirezajavan.pulsekit.compose.permissions/DataSourcePermissionState.missingOptional|{}missingOptional[0]
+        final fun <get-missingOptional>(): kotlin.collections/List<io.github.alirezajavan.pulsekit.core.permission/Permission> // io.github.alirezajavan.pulsekit.compose.permissions/DataSourcePermissionState.missingOptional.<get-missingOptional>|<get-missingOptional>(){}[0]
+    final val missingRequired // io.github.alirezajavan.pulsekit.compose.permissions/DataSourcePermissionState.missingRequired|{}missingRequired[0]
+        final fun <get-missingRequired>(): kotlin.collections/List<io.github.alirezajavan.pulsekit.core.permission/Permission> // io.github.alirezajavan.pulsekit.compose.permissions/DataSourcePermissionState.missingRequired.<get-missingRequired>|<get-missingRequired>(){}[0]
+
+    final fun refresh() // io.github.alirezajavan.pulsekit.compose.permissions/DataSourcePermissionState.refresh|refresh(){}[0]
+    final fun request(kotlin/Function1<kotlin/Boolean, kotlin/Unit> = ...) // io.github.alirezajavan.pulsekit.compose.permissions/DataSourcePermissionState.request|request(kotlin.Function1<kotlin.Boolean,kotlin.Unit>){}[0]
+}
+
+final class io.github.alirezajavan.pulsekit.compose.permissions/PermissionGateState { // io.github.alirezajavan.pulsekit.compose.permissions/PermissionGateState|null[0]
+    final val allGranted // io.github.alirezajavan.pulsekit.compose.permissions/PermissionGateState.allGranted|{}allGranted[0]
+        final fun <get-allGranted>(): kotlin/Boolean // io.github.alirezajavan.pulsekit.compose.permissions/PermissionGateState.allGranted.<get-allGranted>|<get-allGranted>(){}[0]
+    final val missing // io.github.alirezajavan.pulsekit.compose.permissions/PermissionGateState.missing|{}missing[0]
+        final fun <get-missing>(): kotlin.collections/List<io.github.alirezajavan.pulsekit.core.permission/Permission> // io.github.alirezajavan.pulsekit.compose.permissions/PermissionGateState.missing.<get-missing>|<get-missing>(){}[0]
+
+    final var isRequesting // io.github.alirezajavan.pulsekit.compose.permissions/PermissionGateState.isRequesting|{}isRequesting[0]
+        final fun <get-isRequesting>(): kotlin/Boolean // io.github.alirezajavan.pulsekit.compose.permissions/PermissionGateState.isRequesting.<get-isRequesting>|<get-isRequesting>(){}[0]
+    final var statuses // io.github.alirezajavan.pulsekit.compose.permissions/PermissionGateState.statuses|{}statuses[0]
+        final fun <get-statuses>(): kotlin.collections/Map<io.github.alirezajavan.pulsekit.core.permission/Permission, io.github.alirezajavan.pulsekit.core.permission/PermissionStatus> // io.github.alirezajavan.pulsekit.compose.permissions/PermissionGateState.statuses.<get-statuses>|<get-statuses>(){}[0]
+
+    final fun refresh() // io.github.alirezajavan.pulsekit.compose.permissions/PermissionGateState.refresh|refresh(){}[0]
+    final fun requestAll(kotlin/Function1<kotlin.collections/Map<io.github.alirezajavan.pulsekit.core.permission/Permission, io.github.alirezajavan.pulsekit.core.permission/PermissionStatus>, kotlin/Unit> = ...) // io.github.alirezajavan.pulsekit.compose.permissions/PermissionGateState.requestAll|requestAll(kotlin.Function1<kotlin.collections.Map<io.github.alirezajavan.pulsekit.core.permission.Permission,io.github.alirezajavan.pulsekit.core.permission.PermissionStatus>,kotlin.Unit>){}[0]
+    final fun statusOf(io.github.alirezajavan.pulsekit.core.permission/Permission): io.github.alirezajavan.pulsekit.core.permission/PermissionStatus // io.github.alirezajavan.pulsekit.compose.permissions/PermissionGateState.statusOf|statusOf(io.github.alirezajavan.pulsekit.core.permission.Permission){}[0]
+}
+
+final val io.github.alirezajavan.pulsekit.compose.permissions/io_github_alirezajavan_pulsekit_compose_permissions_DataSourcePermissionState$stableprop // io.github.alirezajavan.pulsekit.compose.permissions/io_github_alirezajavan_pulsekit_compose_permissions_DataSourcePermissionState$stableprop|#static{}io_github_alirezajavan_pulsekit_compose_permissions_DataSourcePermissionState$stableprop[0]
+final val io.github.alirezajavan.pulsekit.compose.permissions/io_github_alirezajavan_pulsekit_compose_permissions_PermissionGateState$stableprop // io.github.alirezajavan.pulsekit.compose.permissions/io_github_alirezajavan_pulsekit_compose_permissions_PermissionGateState$stableprop|#static{}io_github_alirezajavan_pulsekit_compose_permissions_PermissionGateState$stableprop[0]
+
+final fun io.github.alirezajavan.pulsekit.compose.permissions/PermissionGate(io.github.alirezajavan.pulsekit.core.permission/PermissionController, kotlin.collections/List<io.github.alirezajavan.pulsekit.core.permission/Permission>, androidx.compose.ui/Modifier?, kotlin/Function3<kotlin.collections/List<io.github.alirezajavan.pulsekit.core.permission/Permission>, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>?, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // io.github.alirezajavan.pulsekit.compose.permissions/PermissionGate|PermissionGate(io.github.alirezajavan.pulsekit.core.permission.PermissionController;kotlin.collections.List<io.github.alirezajavan.pulsekit.core.permission.Permission>;androidx.compose.ui.Modifier?;kotlin.Function3<kotlin.collections.List<io.github.alirezajavan.pulsekit.core.permission.Permission>,androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>?;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+final fun io.github.alirezajavan.pulsekit.compose.permissions/io_github_alirezajavan_pulsekit_compose_permissions_DataSourcePermissionState$stableprop_getter(): kotlin/Int // io.github.alirezajavan.pulsekit.compose.permissions/io_github_alirezajavan_pulsekit_compose_permissions_DataSourcePermissionState$stableprop_getter|io_github_alirezajavan_pulsekit_compose_permissions_DataSourcePermissionState$stableprop_getter(){}[0]
+final fun io.github.alirezajavan.pulsekit.compose.permissions/io_github_alirezajavan_pulsekit_compose_permissions_PermissionGateState$stableprop_getter(): kotlin/Int // io.github.alirezajavan.pulsekit.compose.permissions/io_github_alirezajavan_pulsekit_compose_permissions_PermissionGateState$stableprop_getter|io_github_alirezajavan_pulsekit_compose_permissions_PermissionGateState$stableprop_getter(){}[0]
+final fun io.github.alirezajavan.pulsekit.compose.permissions/rememberDataSourcePermissionState(io.github.alirezajavan.pulsekit.core.permission/PermissionController, io.github.alirezajavan.pulsekit.core/DataSource, kotlin.collections/List<io.github.alirezajavan.pulsekit.core.permission/Permission>?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): io.github.alirezajavan.pulsekit.compose.permissions/DataSourcePermissionState // io.github.alirezajavan.pulsekit.compose.permissions/rememberDataSourcePermissionState|rememberDataSourcePermissionState(io.github.alirezajavan.pulsekit.core.permission.PermissionController;io.github.alirezajavan.pulsekit.core.DataSource;kotlin.collections.List<io.github.alirezajavan.pulsekit.core.permission.Permission>?;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+final fun io.github.alirezajavan.pulsekit.compose.permissions/rememberPermissionGateState(io.github.alirezajavan.pulsekit.core.permission/PermissionController, kotlin.collections/List<io.github.alirezajavan.pulsekit.core.permission/Permission>, androidx.compose.runtime/Composer?, kotlin/Int): io.github.alirezajavan.pulsekit.compose.permissions/PermissionGateState // io.github.alirezajavan.pulsekit.compose.permissions/rememberPermissionGateState|rememberPermissionGateState(io.github.alirezajavan.pulsekit.core.permission.PermissionController;kotlin.collections.List<io.github.alirezajavan.pulsekit.core.permission.Permission>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]

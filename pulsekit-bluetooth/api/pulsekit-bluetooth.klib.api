@@ -1,0 +1,37 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <PulseKit:pulsekit-bluetooth>
+final class io.github.alirezajavan.pulsekit.bluetooth/BluetoothConfig { // io.github.alirezajavan.pulsekit.bluetooth/BluetoothConfig|null[0]
+    constructor <init>(kotlin.collections/List<kotlin/String> = ...) // io.github.alirezajavan.pulsekit.bluetooth/BluetoothConfig.<init>|<init>(kotlin.collections.List<kotlin.String>){}[0]
+
+    final val serviceUuids // io.github.alirezajavan.pulsekit.bluetooth/BluetoothConfig.serviceUuids|{}serviceUuids[0]
+        final fun <get-serviceUuids>(): kotlin.collections/List<kotlin/String> // io.github.alirezajavan.pulsekit.bluetooth/BluetoothConfig.serviceUuids.<get-serviceUuids>|<get-serviceUuids>(){}[0]
+
+    final fun component1(): kotlin.collections/List<kotlin/String> // io.github.alirezajavan.pulsekit.bluetooth/BluetoothConfig.component1|component1(){}[0]
+    final fun copy(kotlin.collections/List<kotlin/String> = ...): io.github.alirezajavan.pulsekit.bluetooth/BluetoothConfig // io.github.alirezajavan.pulsekit.bluetooth/BluetoothConfig.copy|copy(kotlin.collections.List<kotlin.String>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.github.alirezajavan.pulsekit.bluetooth/BluetoothConfig.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.github.alirezajavan.pulsekit.bluetooth/BluetoothConfig.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.github.alirezajavan.pulsekit.bluetooth/BluetoothConfig.toString|toString(){}[0]
+}
+
+final class io.github.alirezajavan.pulsekit.bluetooth/BluetoothDataSource : io.github.alirezajavan.pulsekit.core/DataSource { // io.github.alirezajavan.pulsekit.bluetooth/BluetoothDataSource|null[0]
+    constructor <init>(io.github.alirezajavan.pulsekit.core/PlatformContext, io.github.alirezajavan.pulsekit.bluetooth/BluetoothConfig = ..., io.github.alirezajavan.pulsekit.core/PulseKitLogger = ...) // io.github.alirezajavan.pulsekit.bluetooth/BluetoothDataSource.<init>|<init>(io.github.alirezajavan.pulsekit.core.PlatformContext;io.github.alirezajavan.pulsekit.bluetooth.BluetoothConfig;io.github.alirezajavan.pulsekit.core.PulseKitLogger){}[0]
+
+    final val displayName // io.github.alirezajavan.pulsekit.bluetooth/BluetoothDataSource.displayName|{}displayName[0]
+        final fun <get-displayName>(): kotlin/String // io.github.alirezajavan.pulsekit.bluetooth/BluetoothDataSource.displayName.<get-displayName>|<get-displayName>(){}[0]
+    final val id // io.github.alirezajavan.pulsekit.bluetooth/BluetoothDataSource.id|{}id[0]
+        final fun <get-id>(): kotlin/String // io.github.alirezajavan.pulsekit.bluetooth/BluetoothDataSource.id.<get-id>|<get-id>(){}[0]
+    final val isSupported // io.github.alirezajavan.pulsekit.bluetooth/BluetoothDataSource.isSupported|{}isSupported[0]
+        final fun <get-isSupported>(): kotlin/Boolean // io.github.alirezajavan.pulsekit.bluetooth/BluetoothDataSource.isSupported.<get-isSupported>|<get-isSupported>(){}[0]
+    final val requiredPermissions // io.github.alirezajavan.pulsekit.bluetooth/BluetoothDataSource.requiredPermissions|{}requiredPermissions[0]
+        final fun <get-requiredPermissions>(): kotlin.collections/List<io.github.alirezajavan.pulsekit.core.permission/Permission> // io.github.alirezajavan.pulsekit.bluetooth/BluetoothDataSource.requiredPermissions.<get-requiredPermissions>|<get-requiredPermissions>(){}[0]
+
+    final fun events(): kotlinx.coroutines.flow/Flow<io.github.alirezajavan.pulsekit.core/SensorPayload> // io.github.alirezajavan.pulsekit.bluetooth/BluetoothDataSource.events|events(){}[0]
+    final suspend fun start(): kotlin/Boolean // io.github.alirezajavan.pulsekit.bluetooth/BluetoothDataSource.start|start(){}[0]
+    final suspend fun stop() // io.github.alirezajavan.pulsekit.bluetooth/BluetoothDataSource.stop|stop(){}[0]
+}

@@ -1,0 +1,42 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <PulseKit:pulsekit-location>
+final class io.github.alirezajavan.pulsekit.location/LocationConfig { // io.github.alirezajavan.pulsekit.location/LocationConfig|null[0]
+    constructor <init>(kotlin/Long = ..., kotlin/Float = ...) // io.github.alirezajavan.pulsekit.location/LocationConfig.<init>|<init>(kotlin.Long;kotlin.Float){}[0]
+
+    final val minUpdateDistanceMeters // io.github.alirezajavan.pulsekit.location/LocationConfig.minUpdateDistanceMeters|{}minUpdateDistanceMeters[0]
+        final fun <get-minUpdateDistanceMeters>(): kotlin/Float // io.github.alirezajavan.pulsekit.location/LocationConfig.minUpdateDistanceMeters.<get-minUpdateDistanceMeters>|<get-minUpdateDistanceMeters>(){}[0]
+    final val minUpdateIntervalMillis // io.github.alirezajavan.pulsekit.location/LocationConfig.minUpdateIntervalMillis|{}minUpdateIntervalMillis[0]
+        final fun <get-minUpdateIntervalMillis>(): kotlin/Long // io.github.alirezajavan.pulsekit.location/LocationConfig.minUpdateIntervalMillis.<get-minUpdateIntervalMillis>|<get-minUpdateIntervalMillis>(){}[0]
+
+    final fun component1(): kotlin/Long // io.github.alirezajavan.pulsekit.location/LocationConfig.component1|component1(){}[0]
+    final fun component2(): kotlin/Float // io.github.alirezajavan.pulsekit.location/LocationConfig.component2|component2(){}[0]
+    final fun copy(kotlin/Long = ..., kotlin/Float = ...): io.github.alirezajavan.pulsekit.location/LocationConfig // io.github.alirezajavan.pulsekit.location/LocationConfig.copy|copy(kotlin.Long;kotlin.Float){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.github.alirezajavan.pulsekit.location/LocationConfig.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.github.alirezajavan.pulsekit.location/LocationConfig.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.github.alirezajavan.pulsekit.location/LocationConfig.toString|toString(){}[0]
+}
+
+final class io.github.alirezajavan.pulsekit.location/LocationDataSource : io.github.alirezajavan.pulsekit.core/DataSource { // io.github.alirezajavan.pulsekit.location/LocationDataSource|null[0]
+    constructor <init>(io.github.alirezajavan.pulsekit.core/PlatformContext, io.github.alirezajavan.pulsekit.location/LocationConfig = ..., io.github.alirezajavan.pulsekit.core/PulseKitLogger = ...) // io.github.alirezajavan.pulsekit.location/LocationDataSource.<init>|<init>(io.github.alirezajavan.pulsekit.core.PlatformContext;io.github.alirezajavan.pulsekit.location.LocationConfig;io.github.alirezajavan.pulsekit.core.PulseKitLogger){}[0]
+
+    final val displayName // io.github.alirezajavan.pulsekit.location/LocationDataSource.displayName|{}displayName[0]
+        final fun <get-displayName>(): kotlin/String // io.github.alirezajavan.pulsekit.location/LocationDataSource.displayName.<get-displayName>|<get-displayName>(){}[0]
+    final val id // io.github.alirezajavan.pulsekit.location/LocationDataSource.id|{}id[0]
+        final fun <get-id>(): kotlin/String // io.github.alirezajavan.pulsekit.location/LocationDataSource.id.<get-id>|<get-id>(){}[0]
+    final val isSupported // io.github.alirezajavan.pulsekit.location/LocationDataSource.isSupported|{}isSupported[0]
+        final fun <get-isSupported>(): kotlin/Boolean // io.github.alirezajavan.pulsekit.location/LocationDataSource.isSupported.<get-isSupported>|<get-isSupported>(){}[0]
+    final val optionalPermissions // io.github.alirezajavan.pulsekit.location/LocationDataSource.optionalPermissions|{}optionalPermissions[0]
+        final fun <get-optionalPermissions>(): kotlin.collections/List<io.github.alirezajavan.pulsekit.core.permission/Permission> // io.github.alirezajavan.pulsekit.location/LocationDataSource.optionalPermissions.<get-optionalPermissions>|<get-optionalPermissions>(){}[0]
+    final val requiredPermissions // io.github.alirezajavan.pulsekit.location/LocationDataSource.requiredPermissions|{}requiredPermissions[0]
+        final fun <get-requiredPermissions>(): kotlin.collections/List<io.github.alirezajavan.pulsekit.core.permission/Permission> // io.github.alirezajavan.pulsekit.location/LocationDataSource.requiredPermissions.<get-requiredPermissions>|<get-requiredPermissions>(){}[0]
+
+    final fun events(): kotlinx.coroutines.flow/Flow<io.github.alirezajavan.pulsekit.core/SensorPayload> // io.github.alirezajavan.pulsekit.location/LocationDataSource.events|events(){}[0]
+    final suspend fun start(): kotlin/Boolean // io.github.alirezajavan.pulsekit.location/LocationDataSource.start|start(){}[0]
+    final suspend fun stop() // io.github.alirezajavan.pulsekit.location/LocationDataSource.stop|stop(){}[0]
+}

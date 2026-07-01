@@ -1,0 +1,18 @@
+#!/bin/sh
+# Fast local safety net before a commit lands: catches binary-compatibility-validator API
+# drift and the existing unit test suites (pulsekit-core/-sync), without paying for a full
+# `./gradlew build` (which also assembles the app and compiles iOS klibs -- too slow for a
+# pre-commit hook, that's what CI's Test workflow is for).
+#
+# Install once per clone with:
+#   git config core.hooksPath scripts/git-hooks
+#
+# Bypass for a single commit (use sparingly) with:
+#   git commit --no-verify
+
+set -e
+
+echo "pre-commit: running apiCheck + unit tests..."
+./gradlew apiCheck testAndroidHostTest --quiet
+
+echo "pre-commit: passed."

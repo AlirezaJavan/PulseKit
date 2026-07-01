@@ -1,0 +1,40 @@
+root = true
+
+[*.{kt,kts}]
+max_line_length = 100
+indent_size = 4
+insert_final_newline = true
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+ktlint_standard_trailing-comma-on-call-site = enabled
+ktlint_standard_trailing-comma-on-declaration-site = enabled
+# Left disabled: this codebase's existing import order/blank-line/multi-line-call conventions
+# predate ktlint adoption here, and reflowing every multi-arg call and import block across the
+# whole codebase is a large mechanical diff with no functional benefit -- new code should still
+# follow the style already established in CLAUDE.md/existing files, just not auto-enforced by
+# these specific rules. Genuinely useful rules (unused imports, wildcard imports, trailing
+# whitespace, missing final newline, trailing commas) stay enabled.
+ktlint_standard_import-ordering = disabled
+ktlint_standard_no-blank-line-in-list = disabled
+ktlint_standard_argument-list-wrapping = disabled
+ktlint_standard_parameter-list-wrapping = disabled
+ktlint_standard_function-signature = disabled
+ktlint_standard_indent = disabled
+ktlint_standard_multiline-expression-wrapping = disabled
+ktlint_standard_string-template-indent = disabled
+# Leading-underscore private backing properties (`_state`/public `state` exposing it read-only)
+# are Kotlin's own official convention for this pattern, not a naming mistake.
+ktlint_standard_property-naming = disabled
+# @Composable functions conventionally use PascalCase (the official Jetpack Compose style guide
+# treats them like types, not regular functions) -- ktlint's standard function-naming rule
+# predates that convention and doesn't special-case @Composable, so it flags every Composable
+# in pulsekit-compose-permissions otherwise.
+ktlint_standard_function-naming = disabled
+
+# SQLDelight-generated code (build/generated/sqldelight/...) is not hand-written and shouldn't be
+# linted -- the Gradle plugin's own `filter { exclude(...) }` didn't take effect here (its
+# PatternFilterable glob is relative to each Kotlin source dir, and the generated dir *is* one of
+# those source dirs, so "**/build/**" never matches anything relative to its own root), so this
+# disables ktlint entirely for that path via .editorconfig instead, which ktlint always honors.
+[**/build/generated/**/*.kt]
+ktlint = disabled

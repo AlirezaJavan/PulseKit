@@ -1,0 +1,55 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <PulseKit:pulsekit-motion>
+final class io.github.alirezajavan.pulsekit.motion/MotionConfig { // io.github.alirezajavan.pulsekit.motion/MotionConfig|null[0]
+    constructor <init>(kotlin/Int = ..., kotlin/Int = ...) // io.github.alirezajavan.pulsekit.motion/MotionConfig.<init>|<init>(kotlin.Int;kotlin.Int){}[0]
+
+    final val chunkSize // io.github.alirezajavan.pulsekit.motion/MotionConfig.chunkSize|{}chunkSize[0]
+        final fun <get-chunkSize>(): kotlin/Int // io.github.alirezajavan.pulsekit.motion/MotionConfig.chunkSize.<get-chunkSize>|<get-chunkSize>(){}[0]
+    final val samplingPeriodMicros // io.github.alirezajavan.pulsekit.motion/MotionConfig.samplingPeriodMicros|{}samplingPeriodMicros[0]
+        final fun <get-samplingPeriodMicros>(): kotlin/Int // io.github.alirezajavan.pulsekit.motion/MotionConfig.samplingPeriodMicros.<get-samplingPeriodMicros>|<get-samplingPeriodMicros>(){}[0]
+
+    final fun component1(): kotlin/Int // io.github.alirezajavan.pulsekit.motion/MotionConfig.component1|component1(){}[0]
+    final fun component2(): kotlin/Int // io.github.alirezajavan.pulsekit.motion/MotionConfig.component2|component2(){}[0]
+    final fun copy(kotlin/Int = ..., kotlin/Int = ...): io.github.alirezajavan.pulsekit.motion/MotionConfig // io.github.alirezajavan.pulsekit.motion/MotionConfig.copy|copy(kotlin.Int;kotlin.Int){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.github.alirezajavan.pulsekit.motion/MotionConfig.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.github.alirezajavan.pulsekit.motion/MotionConfig.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.github.alirezajavan.pulsekit.motion/MotionConfig.toString|toString(){}[0]
+}
+
+final class io.github.alirezajavan.pulsekit.motion/MotionDataSource : io.github.alirezajavan.pulsekit.core/DataSource { // io.github.alirezajavan.pulsekit.motion/MotionDataSource|null[0]
+    constructor <init>(io.github.alirezajavan.pulsekit.core/PlatformContext, io.github.alirezajavan.pulsekit.motion/MotionConfig = ..., io.github.alirezajavan.pulsekit.core/PulseKitLogger = ...) // io.github.alirezajavan.pulsekit.motion/MotionDataSource.<init>|<init>(io.github.alirezajavan.pulsekit.core.PlatformContext;io.github.alirezajavan.pulsekit.motion.MotionConfig;io.github.alirezajavan.pulsekit.core.PulseKitLogger){}[0]
+
+    final val displayName // io.github.alirezajavan.pulsekit.motion/MotionDataSource.displayName|{}displayName[0]
+        final fun <get-displayName>(): kotlin/String // io.github.alirezajavan.pulsekit.motion/MotionDataSource.displayName.<get-displayName>|<get-displayName>(){}[0]
+    final val id // io.github.alirezajavan.pulsekit.motion/MotionDataSource.id|{}id[0]
+        final fun <get-id>(): kotlin/String // io.github.alirezajavan.pulsekit.motion/MotionDataSource.id.<get-id>|<get-id>(){}[0]
+    final val isSupported // io.github.alirezajavan.pulsekit.motion/MotionDataSource.isSupported|{}isSupported[0]
+        final fun <get-isSupported>(): kotlin/Boolean // io.github.alirezajavan.pulsekit.motion/MotionDataSource.isSupported.<get-isSupported>|<get-isSupported>(){}[0]
+
+    final fun events(): kotlinx.coroutines.flow/Flow<io.github.alirezajavan.pulsekit.core/SensorPayload> // io.github.alirezajavan.pulsekit.motion/MotionDataSource.events|events(){}[0]
+    final suspend fun start(): kotlin/Boolean // io.github.alirezajavan.pulsekit.motion/MotionDataSource.start|start(){}[0]
+    final suspend fun stop() // io.github.alirezajavan.pulsekit.motion/MotionDataSource.stop|stop(){}[0]
+}
+
+final class io.github.alirezajavan.pulsekit.motion/StepCounterDataSource : io.github.alirezajavan.pulsekit.core/DataSource { // io.github.alirezajavan.pulsekit.motion/StepCounterDataSource|null[0]
+    constructor <init>(io.github.alirezajavan.pulsekit.core/PlatformContext, io.github.alirezajavan.pulsekit.core/PulseKitLogger = ...) // io.github.alirezajavan.pulsekit.motion/StepCounterDataSource.<init>|<init>(io.github.alirezajavan.pulsekit.core.PlatformContext;io.github.alirezajavan.pulsekit.core.PulseKitLogger){}[0]
+
+    final val displayName // io.github.alirezajavan.pulsekit.motion/StepCounterDataSource.displayName|{}displayName[0]
+        final fun <get-displayName>(): kotlin/String // io.github.alirezajavan.pulsekit.motion/StepCounterDataSource.displayName.<get-displayName>|<get-displayName>(){}[0]
+    final val id // io.github.alirezajavan.pulsekit.motion/StepCounterDataSource.id|{}id[0]
+        final fun <get-id>(): kotlin/String // io.github.alirezajavan.pulsekit.motion/StepCounterDataSource.id.<get-id>|<get-id>(){}[0]
+    final val isSupported // io.github.alirezajavan.pulsekit.motion/StepCounterDataSource.isSupported|{}isSupported[0]
+        final fun <get-isSupported>(): kotlin/Boolean // io.github.alirezajavan.pulsekit.motion/StepCounterDataSource.isSupported.<get-isSupported>|<get-isSupported>(){}[0]
+    final val requiredPermissions // io.github.alirezajavan.pulsekit.motion/StepCounterDataSource.requiredPermissions|{}requiredPermissions[0]
+        final fun <get-requiredPermissions>(): kotlin.collections/List<io.github.alirezajavan.pulsekit.core.permission/Permission> // io.github.alirezajavan.pulsekit.motion/StepCounterDataSource.requiredPermissions.<get-requiredPermissions>|<get-requiredPermissions>(){}[0]
+
+    final fun events(): kotlinx.coroutines.flow/Flow<io.github.alirezajavan.pulsekit.core/SensorPayload> // io.github.alirezajavan.pulsekit.motion/StepCounterDataSource.events|events(){}[0]
+    final suspend fun start(): kotlin/Boolean // io.github.alirezajavan.pulsekit.motion/StepCounterDataSource.start|start(){}[0]
+    final suspend fun stop() // io.github.alirezajavan.pulsekit.motion/StepCounterDataSource.stop|stop(){}[0]
+}

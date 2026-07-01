@@ -1,0 +1,40 @@
+import io.github.alirezajavan.pulsekit.core.SensorPayload;
+import io.github.alirezajavan.pulsekit.core.SyncStatus;
+
+CREATE TABLE SensorEventLog (
+    id TEXT NOT NULL PRIMARY KEY,
+    sensorType TEXT NOT NULL,
+    timestamp INTEGER NOT NULL,
+    payload TEXT AS SensorPayload NOT NULL,
+    syncStatus TEXT AS SyncStatus NOT NULL DEFAULT 'IDLE'
+);
+
+CREATE INDEX idx_sensor_event_log_timestamp ON SensorEventLog(timestamp ASC);
+CREATE INDEX idx_sensor_event_log_sync_status ON SensorEventLog(syncStatus);
+
+insertEvent:
+INSERT OR REPLACE INTO SensorEventLog(id, sensorType, timestamp, payload, syncStatus)
+VALUES (?, ?, ?, ?, ?);
+
+eventCount:
+SELECT COUNT(*) FROM SensorEventLog;
+
+eventsByStatus:
+SELECT * FROM SensorEventLog WHERE syncStatus = :status ORDER BY timestamp ASC LIMIT :limit;
+
+updateSyncStatus:
+UPDATE SensorEventLog SET syncStatus = :status WHERE id IN :ids;
+
+deleteEvents:
+DELETE FROM SensorEventLog WHERE id IN :ids;
+
+pruneOldEvents:
+DELETE FROM SensorEventLog WHERE id IN (
+    SELECT id FROM SensorEventLog ORDER BY timestamp ASC LIMIT :limit
+);
+
+pruneEventsOlderThan:
+DELETE FROM SensorEventLog WHERE timestamp < :cutoffTimestamp;
+
+deleteAllEvents:
+DELETE FROM SensorEventLog;
