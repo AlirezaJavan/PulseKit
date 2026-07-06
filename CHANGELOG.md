@@ -1,11 +1,10 @@
 # Changelog
 
 All notable changes to PulseKit are documented here. Format follows
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This project will adopt
-[Semantic Versioning](https://semver.org/) starting at the first published release (`0.1.0`);
-until then, everything lives under `[Unreleased]` and the public surface can still shift.
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This project uses
+[Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.1.0] - 2026-07-06
 
 ### Fixed
 - `pulsekit-location` (Android): `LocationDataSource.start()` crashed with
@@ -188,6 +187,3 @@ until then, everything lives under `[Unreleased]` and the public surface can sti
   iOS (`iosArm64`/`iosSimulatorArm64`) surface, since `binary-compatibility-validator` doesn't
   support the newer `com.android.kotlin.multiplatform.library` Android target. The Android
   public surface still needs manual review until that gap closes upstream.
-- No release has been published yet. The CI/publishing pipeline is wired up (see above), but
-  actually cutting a release additionally needs Maven Central + signing secrets configured in the
-  GitHub repo's environment, which is outside what could be done from this session.
