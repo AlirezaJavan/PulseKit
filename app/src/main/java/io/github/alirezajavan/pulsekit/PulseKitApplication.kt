@@ -74,6 +74,13 @@ class PulseKitApplication : Application() {
         syncEngine.start(applicationScope)
     }
 
+    // Only invoked by the OS in the emulator, never on a real device -- but it's the correct
+    // symmetric teardown for the pulseKit instance built in onCreate().
+    override fun onTerminate() {
+        pulseKit.dispose()
+        super.onTerminate()
+    }
+
     companion object {
         fun from(context: android.content.Context): PulseKitApplication =
             context.applicationContext as PulseKitApplication

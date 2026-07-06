@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,10 +23,13 @@ import androidx.compose.ui.unit.dp
 import io.github.alirezajavan.pulsekit.ui.rememberDataSourcePermissionState
 import io.github.alirezajavan.pulsekit.ui.BasePulseKitService
 import io.github.alirezajavan.pulsekit.core.DataSource
+import io.github.alirezajavan.pulsekit.core.MotionSample
 import io.github.alirezajavan.pulsekit.core.PulseKit
+import io.github.alirezajavan.pulsekit.core.SensorPayload
 import io.github.alirezajavan.pulsekit.core.permission.Permission
 import io.github.alirezajavan.pulsekit.ui.permission.PermissionController
 import io.github.alirezajavan.ui.theme.PulseKitTheme
+import kotlinx.coroutines.launch
 
 /**
  * Demonstrates the full end-to-end flow with almost no library-specific knowledge in the app: the
@@ -81,6 +85,7 @@ fun TrackingScreen(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val eventCount by pulseKit.observeEventCount().collectAsState(initial = 0L)
     // Single source of truth: the app-scoped PulseKit reflects what is genuinely collecting, so
     // this survives the activity being recreated (rotation, close/reopen) instead of the UI
@@ -111,6 +116,56 @@ fun TrackingScreen(
             onClick = onStopAll,
         ) {
             Text("Stop collecting")
+        }
+
+        // One-off event outside the attached data sources, e.g. a custom in-app action worth
+        // logging alongside sensor data.
+        Button(
+            onClick = {
+                pulseKit.recordEvent(SensorPayload.StepCount(steps = 1), type = "manual_ping")
+                Toast.makeText(context, "Recorded manual event", Toast.LENGTH_SHORT).show()
+            },
+        ) {
+            Text("Record manual event")
+        }
+
+        // Simulates replaying a historical batch pulled from a platform buffer (e.g. iOS
+        // pedometer history after relaunch) rather than events observed live.
+        Button(
+            onClick = {
+                coroutineScope.launch {
+                    val replayed = List(5) { index ->
+                        SensorPayload.MotionChunk(
+                            samples = listOf(
+                                MotionSample(
+                                    timestamp = System.currentTimeMillis() - index * 1_000L,
+                                    x = 0f,
+                                    y = 0f,
+                                    z = 0f,
+                                ),
+                            ),
+                        )
+                    }
+                    pulseKit.recordEvents(replayed, type = "motion_replay")
+                    Toast.makeText(context, "Replayed ${replayed.size} events", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            },
+        ) {
+            Text("Replay historical batch")
+        }
+
+        // Right-to-erasure (GDPR/CCPA) style action: wipes every stored row regardless of age
+        // or sync status.
+        Button(
+            onClick = {
+                coroutineScope.launch {
+                    pulseKit.eraseAllData()
+                    Toast.makeText(context, "Erased all stored data", Toast.LENGTH_SHORT).show()
+                }
+            },
+        ) {
+            Text("Erase all data")
         }
     }
 }

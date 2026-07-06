@@ -19,6 +19,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Public entry point for the PulseKit library.
@@ -42,13 +43,17 @@ class PulseKit private constructor(
 ) {
     private class RegisteredSource(val dataSource: DataSource, val mode: CollectionMode)
 
-    /** Narrow view of the engine for `pulsekit-sync`; keeps sync decoupled from engine internals. */
+    /**
+     * Narrow view of the engine for `pulsekit-sync`; keeps sync decoupled from engine internals.
+     */
     val syncSource: SyncSource get() = engine
 
     private val collectionJobs = mutableMapOf<String, Job>()
     private val mutableActiveSourceIds = MutableStateFlow(emptySet<String>())
 
-    /** Every [DataSource] attached to this instance, e.g. to render one "collect X" control each. */
+    /**
+     * Every [DataSource] attached to this instance, e.g. to render one "collect X" control each.
+     */
     val dataSources: List<DataSource> get() = sources.map { it.dataSource }
 
     /** Ids of every attached [DataSource]. */
@@ -63,7 +68,9 @@ class PulseKit private constructor(
      */
     val activeSourceIds: StateFlow<Set<String>> = mutableActiveSourceIds.asStateFlow()
 
-    /** Starts the engine and every attached [DataSource]. Safe to call again while already running. */
+    /**
+     * Starts the engine and every attached [DataSource]. Safe to call again while already running.
+     */
     fun start() {
         startSources(availableSourceIds)
     }
@@ -89,7 +96,10 @@ class PulseKit private constructor(
         for (registered in toStart) {
             val sourceId = registered.dataSource.id
             if (!registered.dataSource.isSupported) {
-                logger.warn(TAG, "startSources: source \"$sourceId\" is not supported on this device")
+                logger.warn(
+                    TAG,
+                    "startSources: source \"$sourceId\" is not supported on this device",
+                )
                 continue
             }
             // Mark active before launching: the job may complete (failed start) on another
@@ -142,7 +152,10 @@ class PulseKit private constructor(
         engine.logSensorEvent(payload, type)
     }
 
-    /** Persists a historical batch pulled from a platform buffer (e.g. iOS pedometer replay after relaunch). */
+    /**
+     * Persists a historical batch pulled from a platform buffer (e.g. iOS pedometer replay
+     * after relaunch).
+     */
     suspend fun recordEvents(events: List<SensorPayload>, type: String) {
         if (events.isEmpty()) return
         val entities = events.map { payload ->
@@ -167,7 +180,10 @@ class PulseKit private constructor(
         engine.eraseAllData()
     }
 
-    /** Releases the coroutine scope backing this instance. Call once the instance is no longer needed. */
+    /**
+     * Releases the coroutine scope backing this instance. Call once the instance is no longer
+     * needed.
+     */
     fun dispose() {
         scope.cancel()
     }
@@ -200,7 +216,7 @@ class PulseKit private constructor(
             if (started) {
                 logger.debug(TAG, "Source \"${source.id}\" started periodic burst")
                 try {
-                    withTimeoutOrNull(mode.windowMillis) {
+                    withTimeoutOrNull(mode.windowMillis.milliseconds) {
                         source.events().collect { payload ->
                             engine.logSensorEvent(payload, source.id)
                         }
@@ -209,11 +225,11 @@ class PulseKit private constructor(
                     logger.debug(TAG, "Source \"${source.id}\" stopped periodic burst")
                     withContext(NonCancellable) { source.stop() }
                 }
-                delay(mode.intervalMillis - mode.windowMillis)
+                delay((mode.intervalMillis - mode.windowMillis).milliseconds)
             } else {
                 // Skipped cycle (permission denied, adapter off, ...): retry next interval.
                 logger.warn(TAG, "Source \"${source.id}\" failed periodic burst start")
-                delay(mode.intervalMillis)
+                delay(mode.intervalMillis.milliseconds)
             }
         }
     }
@@ -253,10 +269,16 @@ class PulseKit private constructor(
             return PulseKit(engine, sources.toList(), scope, logger)
         }
 
-        /** Exposes the sources added so far to platform-specific validators (e.g. Android's setup check). */
+        /**
+         * Exposes the sources added so far to platform-specific validators (e.g. Android's setup
+         * check).
+         */
         fun dataSourcesSnapshot(): List<DataSource> = sources.map { it.dataSource }
 
-        /** Exposes the configured logger to platform-specific validators (e.g. Android's setup check). */
+        /**
+         * Exposes the configured logger to platform-specific validators (e.g. Android's setup
+         * check).
+         */
         fun loggerSnapshot(): PulseKitLogger = logger
     }
 
