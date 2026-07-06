@@ -74,12 +74,12 @@ Add whichever modules you need to your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("io.github.alirezajavan:pulsekit-core:0.1.0")
-    implementation("io.github.alirezajavan:pulsekit-location:0.1.0")
-    implementation("io.github.alirezajavan:pulsekit-motion:0.1.0")
-    implementation("io.github.alirezajavan:pulsekit-bluetooth:0.1.0")
-    implementation("io.github.alirezajavan:pulsekit-sync:0.1.0")
-    implementation("io.github.alirezajavan:pulsekit-ui:0.1.0") // optional
+    implementation("io.github.alirezajavan:pulsekit-core:0.1.1")
+    implementation("io.github.alirezajavan:pulsekit-location:0.1.1")
+    implementation("io.github.alirezajavan:pulsekit-motion:0.1.1")
+    implementation("io.github.alirezajavan:pulsekit-bluetooth:0.1.1")
+    implementation("io.github.alirezajavan:pulsekit-sync:0.1.1")
+    implementation("io.github.alirezajavan:pulsekit-ui:0.1.1") // optional
 }
 ```
 
