@@ -12,9 +12,6 @@ and a pluggable sync engine that never assumes your backend's wire format. Each 
 describes its own permissions, so the library handles manifest validation, foreground-service
 typing, and the permission-request UI for you.
 
-> **Status**: pre-1.0. No version has shipped to Maven Central yet — see `CHANGELOG.md` for what's
-> implemented so far. The version numbers below are the intended first release.
-
 ## Project Structure
 
 Follows the **Now In Android**-style modular architecture, adapted for Kotlin Multiplatform:
@@ -73,8 +70,7 @@ tracking, you only pull in `pulsekit-core` + `pulsekit-location`.
 
 ## Installation
 
-Not yet published — once a `0.1.0` release ships (see the Release badge above), add whichever
-modules you need:
+Add whichever modules you need to your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
