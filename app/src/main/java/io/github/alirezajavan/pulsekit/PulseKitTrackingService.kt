@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 class PulseKitTrackingService : BasePulseKitService() {
     override val pulseKit: PulseKit get() = PulseKitApplication.from(this).pulseKit
     override val syncState: StateFlow<SyncStatusSnapshot?>
-        get() = PulseKitApplication.from(this).syncEngine.observeState()
+        get() = PulseKitApplication.from(this).syncStatus
 
     override val notificationContentTitle: CharSequence = "PulseKit Demo"
     override val notificationContentText: CharSequence = "Continuous sensor tracking active"
