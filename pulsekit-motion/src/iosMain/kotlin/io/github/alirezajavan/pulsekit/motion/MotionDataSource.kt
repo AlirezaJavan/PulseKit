@@ -8,7 +8,9 @@ import io.github.alirezajavan.pulsekit.core.SensorPayload
 import io.github.alirezajavan.pulsekit.core.platformCurrentTimeMillis
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
 import platform.CoreMotion.CMMotionManager
@@ -28,7 +30,9 @@ actual class MotionDataSource actual constructor(
 
     private val motionManager = CMMotionManager()
     private val buffer = MotionSampleBuffer(config.chunkSize)
+    private val quiescenceDetector = MotionQuiescenceDetector()
     private val events = MutableSharedFlow<SensorPayload>(extraBufferCapacity = 64)
+    private val quiescenceState = MutableStateFlow(false)
     private var isStarted = false
 
     // Dedicated serial queue, not NSOperationQueue.mainQueue: at high sampling rates (tens to
@@ -43,6 +47,8 @@ actual class MotionDataSource actual constructor(
     }
 
     actual override fun events(): Flow<SensorPayload> = events.asSharedFlow()
+
+    actual override val providesQuiescence: Flow<Boolean>? = quiescenceState.asStateFlow()
 
     @OptIn(ExperimentalForeignApi::class)
     actual override suspend fun start(): Boolean {
@@ -70,7 +76,13 @@ actual class MotionDataSource actual constructor(
     }
 
     private fun onSample(x: Float, y: Float, z: Float) {
-        val chunk = buffer.add(MotionSample(platformCurrentTimeMillis(), x, y, z))
+        val sample = MotionSample(platformCurrentTimeMillis(), x, y, z)
+
+        quiescenceDetector.onSample(sample)?.let { isQuiescent ->
+            quiescenceState.value = isQuiescent
+        }
+
+        val chunk = buffer.add(sample)
         if (chunk != null && !events.tryEmit(SensorPayload.MotionChunk(chunk))) {
             logger.warn(TAG, "dropped a motion chunk: events buffer full")
         }

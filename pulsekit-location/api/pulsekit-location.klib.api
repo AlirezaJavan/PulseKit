@@ -37,6 +37,7 @@ final class io.github.alirezajavan.pulsekit.location/LocationDataSource : io.git
         final fun <get-requiredPermissions>(): kotlin.collections/List<io.github.alirezajavan.pulsekit.core.permission/Permission> // io.github.alirezajavan.pulsekit.location/LocationDataSource.requiredPermissions.<get-requiredPermissions>|<get-requiredPermissions>(){}[0]
 
     final fun events(): kotlinx.coroutines.flow/Flow<io.github.alirezajavan.pulsekit.core/SensorPayload> // io.github.alirezajavan.pulsekit.location/LocationDataSource.events|events(){}[0]
+    final fun onQuiescenceChanged(kotlin/Boolean) // io.github.alirezajavan.pulsekit.location/LocationDataSource.onQuiescenceChanged|onQuiescenceChanged(kotlin.Boolean){}[0]
     final suspend fun start(): kotlin/Boolean // io.github.alirezajavan.pulsekit.location/LocationDataSource.start|start(){}[0]
     final suspend fun stop() // io.github.alirezajavan.pulsekit.location/LocationDataSource.stop|stop(){}[0]
 }

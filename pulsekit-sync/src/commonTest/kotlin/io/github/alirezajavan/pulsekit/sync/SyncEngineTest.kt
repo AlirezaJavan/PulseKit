@@ -12,6 +12,7 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -138,6 +139,62 @@ class SyncEngineTest {
         )
         assertTrue(logger.warnings.all { it.tag == "SyncEngine" })
     }
+
+    @Test
+    fun gatesSyncWhenUnmeteredNetworkIsRequiredButNotAvailable() = runTest {
+        val event = testEvent("1")
+        val source = FakeSyncSource(listOf(event))
+        val uploader = ScriptedUploader(failuresBeforeSuccess = 0)
+        val networkMonitor = FakeNetworkMonitor(NetworkType.METERED)
+        val engine = SyncEngine(
+            source,
+            uploader,
+            SyncConfig(
+                idlePollIntervalMillis = 100L,
+                requireUnmeteredNetwork = true,
+            ),
+            networkMonitor = networkMonitor,
+        )
+
+        engine.start(this)
+
+        // At t=0, network is METERED, should not sync.
+        advanceTimeBy(10.milliseconds)
+        assertEquals(0, uploader.attempts)
+        assertTrue(engine.observeState().value.isWaitingForNetwork)
+
+        // Switch to UNMETERED at t=50.
+        networkMonitor.type = NetworkType.UNMETERED
+        // Next poll at t=100.
+        advanceTimeBy(100.milliseconds)
+        engine.stop()
+
+        assertEquals(1, uploader.attempts)
+        assertTrue(source.pending.isEmpty())
+        assertFalse(engine.observeState().value.isWaitingForNetwork)
+    }
+
+    @Test
+    fun blocksSyncAndWarnsWhenNetworkMonitorIsMissingButRequired() = runTest {
+        val source = FakeSyncSource(listOf(testEvent("1")))
+        val uploader = ScriptedUploader(failuresBeforeSuccess = 0)
+        val logger = RecordingLogger()
+        val engine = SyncEngine(
+            source,
+            uploader,
+            SyncConfig(requireUnmeteredNetwork = true),
+            logger = logger,
+            networkMonitor = null,
+        )
+
+        engine.start(this)
+        advanceTimeBy(10.milliseconds)
+        engine.stop()
+
+        assertEquals(0, uploader.attempts)
+        assertTrue(engine.observeState().value.isWaitingForNetwork)
+        assertTrue(logger.warnings.any { "NetworkMonitor provided" in it.message })
+    }
 }
 
 private fun testEvent(id: String) = SensorEventLog(
@@ -217,6 +274,10 @@ private class RecordingLogger : PulseKitLogger {
     }
 
     override fun error(tag: String, message: String, throwable: Throwable?) = Unit
+}
+
+private class FakeNetworkMonitor(var type: NetworkType) : NetworkTypeProvider {
+    override fun currentNetworkType() = type
 }
 
 /** Reads the enclosing [kotlinx.coroutines.test.TestScope]'s virtual clock from within a suspend fn. */

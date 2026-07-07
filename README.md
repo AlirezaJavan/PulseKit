@@ -14,6 +14,20 @@ local persistence and a pluggable sync engine that never assumes your backend's 
 data source describes its own permissions, so the library handles manifest validation,
 foreground-service typing, and the permission-request UI for you.
 
+## Screenshots
+
+The demo app (`app/`) showcases every feature area behind bottom navigation:
+
+<table>
+  <tr>
+    <td align="center"><img src="screenshots/home.png" width="200" alt="Home screen"/><br/><sub><b>Home</b></sub></td>
+    <td align="center"><img src="screenshots/sensors.png" width="200" alt="Sensors screen"/><br/><sub><b>Sensors</b></sub></td>
+    <td align="center"><img src="screenshots/bluetooth.png" width="200" alt="Bluetooth screen"/><br/><sub><b>Bluetooth</b></sub></td>
+    <td align="center"><img src="screenshots/sync.png" width="200" alt="Sync screen"/><br/><sub><b>Sync</b></sub></td>
+    <td align="center"><img src="screenshots/settings.png" width="200" alt="Settings screen"/><br/><sub><b>Settings</b></sub></td>
+  </tr>
+</table>
+
 ## Project Structure
 
 Follows the **Now In Android**-style modular architecture, adapted for Kotlin Multiplatform:
@@ -82,12 +96,12 @@ Add whichever modules you need to your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("io.github.alirezajavan:pulsekit-core:0.1.1")
-    implementation("io.github.alirezajavan:pulsekit-location:0.1.1")
-    implementation("io.github.alirezajavan:pulsekit-motion:0.1.1")
-    implementation("io.github.alirezajavan:pulsekit-bluetooth:0.1.1")
-    implementation("io.github.alirezajavan:pulsekit-sync:0.1.1")
-    implementation("io.github.alirezajavan:pulsekit-ui:0.1.1") // optional
+    implementation("io.github.alirezajavan:pulsekit-core:0.2.0")
+    implementation("io.github.alirezajavan:pulsekit-location:0.2.0")
+    implementation("io.github.alirezajavan:pulsekit-motion:0.2.0")
+    implementation("io.github.alirezajavan:pulsekit-bluetooth:0.2.0")
+    implementation("io.github.alirezajavan:pulsekit-sync:0.2.0")
+    implementation("io.github.alirezajavan:pulsekit-ui:0.2.0") // optional
 }
 ```
 

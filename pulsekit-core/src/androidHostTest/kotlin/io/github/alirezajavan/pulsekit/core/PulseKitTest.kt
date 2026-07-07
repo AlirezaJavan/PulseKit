@@ -151,6 +151,25 @@ class PulseKitTest {
     }
 
     @Test
+    fun recordEventPersistsEvenWhenNoDataSourceHasEverBeenStarted() = runTest {
+        val pulseKit = newPulseKit()
+
+        pulseKit.recordEvent(SensorPayload.StepCount(steps = 1L), type = "manual_ping")
+        advanceTimeBy(1_500) // past the default ingestion flush interval
+        runCurrent()
+
+        val persisted = pulseKit.syncSource.claimPendingBatch(limit = 10)
+        assertEquals(
+            1,
+            persisted.size,
+            "recordEvent must not silently strand in the ingestion channel",
+        )
+        assertEquals("manual_ping", persisted.single().sensorType)
+
+        pulseKit.stop()
+    }
+
+    @Test
     fun periodicSourceStartsCollectsForItsWindowThenStopsAndRepeatsNextInterval() = runTest {
         val bluetooth = FakeDataSource("bluetooth")
         val pulseKit = newPulseKit(

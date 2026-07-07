@@ -31,10 +31,18 @@ final class io.github.alirezajavan.pulsekit.motion/MotionDataSource : io.github.
         final fun <get-id>(): kotlin/String // io.github.alirezajavan.pulsekit.motion/MotionDataSource.id.<get-id>|<get-id>(){}[0]
     final val isSupported // io.github.alirezajavan.pulsekit.motion/MotionDataSource.isSupported|{}isSupported[0]
         final fun <get-isSupported>(): kotlin/Boolean // io.github.alirezajavan.pulsekit.motion/MotionDataSource.isSupported.<get-isSupported>|<get-isSupported>(){}[0]
+    final val providesQuiescence // io.github.alirezajavan.pulsekit.motion/MotionDataSource.providesQuiescence|{}providesQuiescence[0]
+        final fun <get-providesQuiescence>(): kotlinx.coroutines.flow/Flow<kotlin/Boolean>? // io.github.alirezajavan.pulsekit.motion/MotionDataSource.providesQuiescence.<get-providesQuiescence>|<get-providesQuiescence>(){}[0]
 
     final fun events(): kotlinx.coroutines.flow/Flow<io.github.alirezajavan.pulsekit.core/SensorPayload> // io.github.alirezajavan.pulsekit.motion/MotionDataSource.events|events(){}[0]
     final suspend fun start(): kotlin/Boolean // io.github.alirezajavan.pulsekit.motion/MotionDataSource.start|start(){}[0]
     final suspend fun stop() // io.github.alirezajavan.pulsekit.motion/MotionDataSource.stop|stop(){}[0]
+}
+
+final class io.github.alirezajavan.pulsekit.motion/MotionQuiescenceDetector { // io.github.alirezajavan.pulsekit.motion/MotionQuiescenceDetector|null[0]
+    constructor <init>(kotlin/Float = ..., kotlin/Int = ..., kotlin/Int = ...) // io.github.alirezajavan.pulsekit.motion/MotionQuiescenceDetector.<init>|<init>(kotlin.Float;kotlin.Int;kotlin.Int){}[0]
+
+    final fun onSample(io.github.alirezajavan.pulsekit.core/MotionSample): kotlin/Boolean? // io.github.alirezajavan.pulsekit.motion/MotionQuiescenceDetector.onSample|onSample(io.github.alirezajavan.pulsekit.core.MotionSample){}[0]
 }
 
 final class io.github.alirezajavan.pulsekit.motion/StepCounterDataSource : io.github.alirezajavan.pulsekit.core/DataSource { // io.github.alirezajavan.pulsekit.motion/StepCounterDataSource|null[0]

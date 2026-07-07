@@ -36,4 +36,6 @@ expect class LocationDataSource(
     override suspend fun stop()
 
     override fun events(): Flow<SensorPayload>
+
+    override fun onQuiescenceChanged(isQuiescent: Boolean)
 }

@@ -2,6 +2,8 @@ package io.github.alirezajavan.pulsekit
 
 import io.github.alirezajavan.pulsekit.ui.BasePulseKitService
 import io.github.alirezajavan.pulsekit.core.PulseKit
+import io.github.alirezajavan.pulsekit.core.SyncStatusSnapshot
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * The app's foreground tracking service. [BasePulseKitService] owns the entire collection
@@ -14,6 +16,8 @@ import io.github.alirezajavan.pulsekit.core.PulseKit
  */
 class PulseKitTrackingService : BasePulseKitService() {
     override val pulseKit: PulseKit get() = PulseKitApplication.from(this).pulseKit
+    override val syncState: StateFlow<SyncStatusSnapshot?>
+        get() = PulseKitApplication.from(this).syncStatus
 
     override val notificationContentTitle: CharSequence = "PulseKit Demo"
     override val notificationContentText: CharSequence = "Continuous sensor tracking active"

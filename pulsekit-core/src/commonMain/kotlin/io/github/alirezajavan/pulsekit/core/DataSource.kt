@@ -55,4 +55,16 @@ interface DataSource {
 
     /** Flow of payloads emitted by this source while started. Empty/idle once [stop] is called. */
     fun events(): Flow<SensorPayload>
+
+    /**
+     * Optional hook for adjusting sampling rate based on device movement.
+     * @param isQuiescent `true` if the device has been stationary for some time; `false` otherwise.
+     */
+    fun onQuiescenceChanged(isQuiescent: Boolean) {}
+
+    /**
+     * Optional flow that emits `true` when this source detects the device has become stationary,
+     * and `false` when it starts moving again. [PulseKit] observes this to notify other sources.
+     */
+    val providesQuiescence: Flow<Boolean>? get() = null
 }
