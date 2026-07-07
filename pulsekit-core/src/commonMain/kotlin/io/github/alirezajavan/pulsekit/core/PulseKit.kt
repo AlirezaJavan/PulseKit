@@ -299,6 +299,12 @@ class PulseKit private constructor(
             val scope = scopeOverride
                 ?: CoroutineScope(SupervisorJob() + Dispatchers.Default)
             val engine = TrackingEngine(database, config, scope, logger)
+            // Persistence (ingestion + pruning) runs for the lifetime of PulseKit, independent of
+            // whether any DataSource is collecting: recordEvent/recordEvents/observeEventCount/
+            // eraseAllData are all documented as usable without a started source, but logSensorEvent
+            // only ever drains through this loop -- leaving it started-on-first-source would silently
+            // strand one-off recordEvent() calls in the ingestion channel until some source started.
+            engine.start()
             return PulseKit(engine, sources.toList(), scope, logger)
         }
 
