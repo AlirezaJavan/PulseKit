@@ -10,4 +10,6 @@ data class SyncConfig(
     val initialBackoffMillis: Long = 2_000L,
     /** Ceiling for exponential backoff, so prolonged outages don't grow the delay unbounded. */
     val maxBackoffMillis: Long = 5 * 60_000L,
+    /** If true, sync will only proceed when an unmetered network (e.g. Wi-Fi) is available. */
+    val requireUnmeteredNetwork: Boolean = false,
 )

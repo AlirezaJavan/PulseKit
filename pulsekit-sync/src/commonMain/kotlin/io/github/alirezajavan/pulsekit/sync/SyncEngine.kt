@@ -26,8 +26,10 @@ class SyncEngine(
     private val uploader: SyncUploader,
     private val config: SyncConfig = SyncConfig(),
     private val logger: PulseKitLogger = NoOpPulseKitLogger,
+    private val networkMonitor: NetworkTypeProvider? = null,
 ) {
     private var loopJob: Job? = null
+    private var hasLoggedNetworkMonitorMissing = false
 
     private val _state = MutableStateFlow(SyncState())
 
@@ -47,14 +49,30 @@ class SyncEngine(
     private suspend fun CoroutineScope.runSyncLoop() {
         var backoff = config.initialBackoffMillis
         while (isActive) {
+            if (config.requireUnmeteredNetwork) {
+                if (networkMonitor == null) {
+                    if (!hasLoggedNetworkMonitorMissing) {
+                        logger.warn(TAG, "SyncConfig requires unmetered network but no NetworkMonitor provided. Sync blocked.")
+                        hasLoggedNetworkMonitorMissing = true
+                    }
+                    _state.value = _state.value.copy(isSyncing = false, isWaitingForNetwork = true)
+                    delay(config.idlePollIntervalMillis.milliseconds)
+                    continue
+                } else if (networkMonitor.currentNetworkType() != NetworkType.UNMETERED) {
+                    _state.value = _state.value.copy(isSyncing = false, isWaitingForNetwork = true)
+                    delay(config.idlePollIntervalMillis.milliseconds)
+                    continue
+                }
+            }
+
             val batch = syncSource.claimPendingBatch(config.batchSize)
             if (batch.isEmpty()) {
-                _state.value = _state.value.copy(isSyncing = false)
+                _state.value = _state.value.copy(isSyncing = false, isWaitingForNetwork = false)
                 delay(config.idlePollIntervalMillis.milliseconds)
                 continue
             }
 
-            _state.value = _state.value.copy(isSyncing = true)
+            _state.value = _state.value.copy(isSyncing = true, isWaitingForNetwork = false)
             val result = runCatching { uploader.upload(batch) }
             val uploaded = result.getOrDefault(false)
             if (uploaded) {

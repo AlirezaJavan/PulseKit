@@ -4,6 +4,13 @@ All notable changes to PulseKit are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - Unreleased
+
+### Added
+- `pulsekit-sync`: **Network-aware sync policy**. `SyncConfig` now includes `requireUnmeteredNetwork` (defaults to `false`), allowing host apps to restrict data uploads to unmetered connections (e.g., Wi-Fi).
+- `pulsekit-sync`: `NetworkMonitor` (expect/actual) for Android (`ConnectivityManager`) and iOS (`NWPathMonitor`) to detect network metering status.
+- `pulsekit-sync`: `SyncState.waitingForNetwork` boolean flag to observe when syncing is paused due to network policy.
+
 ## [0.1.1] - 2026-07-06
 
 ### Fixed

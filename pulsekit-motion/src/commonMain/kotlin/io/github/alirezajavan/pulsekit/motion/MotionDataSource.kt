@@ -29,4 +29,6 @@ expect class MotionDataSource(
     override suspend fun stop()
 
     override fun events(): Flow<SensorPayload>
+
+    override val providesQuiescence: Flow<Boolean>?
 }

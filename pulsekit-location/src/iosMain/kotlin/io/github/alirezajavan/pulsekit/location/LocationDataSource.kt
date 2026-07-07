@@ -16,6 +16,8 @@ import platform.CoreLocation.CLLocationManagerDelegateProtocol
 import platform.CoreLocation.kCLAuthorizationStatusAuthorizedAlways
 import platform.CoreLocation.kCLAuthorizationStatusDenied
 import platform.CoreLocation.kCLAuthorizationStatusRestricted
+import platform.CoreLocation.kCLLocationAccuracyBest
+import platform.CoreLocation.kCLLocationAccuracyThreeKilometers
 import platform.Foundation.NSError
 import platform.darwin.NSObject
 
@@ -37,6 +39,7 @@ actual class LocationDataSource actual constructor(
     private val locationManager = CLLocationManager()
     private val events = MutableSharedFlow<SensorPayload>(extraBufferCapacity = 16)
     private var delegate: CLLocationManagerDelegateProtocol? = null
+    private var isQuiescent = false
 
     actual override fun events(): Flow<SensorPayload> = events.asSharedFlow()
 
@@ -72,6 +75,7 @@ actual class LocationDataSource actual constructor(
         }
         locationManager.delegate = newDelegate
         locationManager.distanceFilter = config.minUpdateDistanceMeters.toDouble()
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
         // Only legal once "Always" authorization is granted and Info.plist declares the
         // `location` UIBackgroundModes entry -- otherwise the OS throws. Continuous multi-day
         // collection needs both flags so iOS doesn't pause/pause-then-suspend updates while
@@ -83,6 +87,23 @@ actual class LocationDataSource actual constructor(
         locationManager.startUpdatingLocation()
         delegate = newDelegate
         return true
+    }
+
+    actual override fun onQuiescenceChanged(isQuiescent: Boolean) {
+        if (this.isQuiescent == isQuiescent) return
+        this.isQuiescent = isQuiescent
+
+        if (delegate == null) return
+
+        if (isQuiescent) {
+            logger.debug(TAG, "Quiescence detected. Throttling location updates.")
+            locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers
+            locationManager.distanceFilter = maxOf(config.minUpdateDistanceMeters.toDouble(), 1000.0)
+        } else {
+            logger.debug(TAG, "Movement detected. Restoring location updates.")
+            locationManager.desiredAccuracy = kCLLocationAccuracyBest
+            locationManager.distanceFilter = config.minUpdateDistanceMeters.toDouble()
+        }
     }
 
     actual override suspend fun stop() {

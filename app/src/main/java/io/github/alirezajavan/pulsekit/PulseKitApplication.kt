@@ -30,7 +30,9 @@ class PulseKitApplication : Application() {
     lateinit var pulseKit: PulseKit
         private set
 
-    private lateinit var syncEngine: SyncEngine
+    lateinit var syncEngine: SyncEngine
+        private set
+
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     override fun onCreate() {

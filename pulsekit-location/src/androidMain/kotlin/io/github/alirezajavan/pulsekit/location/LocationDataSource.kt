@@ -35,13 +35,13 @@ actual class LocationDataSource actual constructor(
         context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private val events = MutableSharedFlow<SensorPayload>(extraBufferCapacity = 16)
     private var listener: LocationListener? = null
+    private var currentProvider: String? = null
+    private var isQuiescent = false
 
     actual override fun events(): Flow<SensorPayload> = events.asSharedFlow()
 
     @SuppressLint("MissingPermission")
     actual override suspend fun start(): Boolean {
-        if (listener != null) return true
-
         val hasFineLocation = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -54,8 +54,13 @@ actual class LocationDataSource actual constructor(
 
         if (!hasFineLocation && !hasCoarseLocation) {
             logger.warn(TAG, "not starting: neither fine nor coarse location permission is granted")
+            // Permission may have been revoked while a session was active -- stop so we don't
+            // keep delivering updates (or retrying) against a now-unauthorized listener.
+            stop()
             return false
         }
+
+        if (listener != null) return true
 
         val newListener = LocationListener { location ->
             val emitted = events.tryEmit(
@@ -93,13 +98,59 @@ actual class LocationDataSource actual constructor(
             newListener,
             Looper.getMainLooper(),
         )
+        currentProvider = provider
         listener = newListener
         return true
+    }
+
+    @SuppressLint("MissingPermission")
+    actual override fun onQuiescenceChanged(isQuiescent: Boolean) {
+        if (this.isQuiescent == isQuiescent) return
+        this.isQuiescent = isQuiescent
+
+        val activeListener = listener ?: return
+        val provider = currentProvider ?: return
+
+        val hasFineLocation = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        ) == PackageManager.PERMISSION_GRANTED
+        val hasCoarseLocation = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+        ) == PackageManager.PERMISSION_GRANTED
+        if (!hasFineLocation && !hasCoarseLocation) {
+            // Permission was revoked while a session was active -- stop rather than risk a
+            // SecurityException from requestLocationUpdates on the next quiescence flip.
+            logger.warn(TAG, "not adjusting for quiescence: location permission was revoked")
+            locationManager.removeUpdates(activeListener)
+            listener = null
+            currentProvider = null
+            return
+        }
+
+        // Adjust sampling rate: if quiescent, throttle to 10x the interval (or at least 2 minutes)
+        val interval = if (isQuiescent) {
+            maxOf(config.minUpdateIntervalMillis * 10, 120_000L)
+        } else {
+            config.minUpdateIntervalMillis
+        }
+
+        logger.debug(TAG, "Quiescence changed to $isQuiescent. Adjusting interval to ${interval}ms")
+        
+        locationManager.requestLocationUpdates(
+            provider,
+            interval,
+            config.minUpdateDistanceMeters,
+            activeListener,
+            Looper.getMainLooper(),
+        )
     }
 
     actual override suspend fun stop() {
         listener?.let { locationManager.removeUpdates(it) }
         listener = null
+        currentProvider = null
     }
 
     private companion object {

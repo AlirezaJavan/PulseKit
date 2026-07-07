@@ -17,6 +17,7 @@ import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import io.github.alirezajavan.pulsekit.core.PulseKit
+import io.github.alirezajavan.pulsekit.core.SyncStatusSnapshot
 import io.github.alirezajavan.pulsekit.ui.permission.foregroundServiceType
 import io.github.alirezajavan.pulsekit.ui.permission.isRuntimeGranted
 import kotlinx.coroutines.CoroutineScope
@@ -24,7 +25,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.FlowPreview
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlin.reflect.KClass
@@ -37,6 +46,14 @@ abstract class BasePulseKitService : Service() {
     /** The app-wide [PulseKit] instance this service drives. */
     protected abstract val pulseKit: PulseKit
 
+    /**
+     * Optional hook to provide the app's sync state (if using `:pulsekit-sync`) to the
+     * foreground notification. Host apps should map their `SyncEngine.observeState()` to this
+     * property.
+     */
+    protected open val syncState: StateFlow<SyncStatusSnapshot?> = MutableStateFlow(null)
+
+    private var lastObservedEventCount: Long = 0
     private var wakeLock: PowerManager.WakeLock? = null
     private val renewalHandler = Handler(Looper.getMainLooper())
 
@@ -66,9 +83,20 @@ abstract class BasePulseKitService : Service() {
         )
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.createNotificationChannel(channel)
+
+        val sync = syncState.value
+        val syncStatusText = when {
+            sync == null -> ""
+            sync.isSyncing -> " · Syncing..."
+            sync.isWaitingForNetwork -> " · Waiting for network"
+            sync.lastError != null -> " · Sync error"
+            else -> ""
+        }
+        val contentText = "$notificationContentText · $lastObservedEventCount events$syncStatusText"
+
         return NotificationCompat.Builder(this, notificationChannelId)
             .setContentTitle(notificationContentTitle)
-            .setContentText(notificationContentText)
+            .setContentText(contentText)
             .setSmallIcon(notificationSmallIcon)
             .setOngoing(true)
             .build()
@@ -76,11 +104,26 @@ abstract class BasePulseKitService : Service() {
 
     open fun foregroundServiceTypes(): Int = permittedForegroundServiceTypes()
 
+    @OptIn(FlowPreview::class)
     override fun onCreate() {
         super.onCreate()
         updateForegroundState()
         acquireWakeLock()
         renewalHandler.postDelayed(renewWakeLock, WAKE_LOCK_RENEWAL_INTERVAL_MILLIS)
+
+        collectionScope.launch {
+            combine(
+                pulseKit.observeEventCount(),
+                syncState,
+            ) { count, sync -> count to sync }
+                .distinctUntilChanged()
+                .sample(NOTIFICATION_REFRESH_DEBOUNCE_MILLIS.milliseconds)
+                .onEach { (count, _) ->
+                    lastObservedEventCount = count
+                    updateForegroundState()
+                }
+                .collect {}
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -192,6 +235,8 @@ abstract class BasePulseKitService : Service() {
 
         private const val WAKE_LOCK_SAFETY_TIMEOUT_MILLIS = 60 * 60 * 1000L // 1h
         private const val WAKE_LOCK_RENEWAL_INTERVAL_MILLIS = 20 * 60 * 1000L // 20min
+
+        private const val NOTIFICATION_REFRESH_DEBOUNCE_MILLIS = 5_000L
 
         fun startCollection(
             context: Context,

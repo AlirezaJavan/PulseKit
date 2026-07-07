@@ -13,7 +13,9 @@ import io.github.alirezajavan.pulsekit.core.SensorPayload
 import io.github.alirezajavan.pulsekit.core.platformCurrentTimeMillis
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 actual class MotionDataSource actual constructor(
     context: PlatformContext,
@@ -27,10 +29,14 @@ actual class MotionDataSource actual constructor(
 
     private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private val buffer = MotionSampleBuffer(config.chunkSize)
+    private val quiescenceDetector = MotionQuiescenceDetector()
     private val events = MutableSharedFlow<SensorPayload>(extraBufferCapacity = 64)
+    private val quiescenceState = MutableStateFlow(false)
     private var listener: SensorEventListener? = null
 
     actual override fun events(): Flow<SensorPayload> = events.asSharedFlow()
+
+    actual override val providesQuiescence: Flow<Boolean>? = quiescenceState.asStateFlow()
 
     actual override suspend fun start(): Boolean {
         if (listener != null) return true
@@ -59,7 +65,13 @@ actual class MotionDataSource actual constructor(
 
     @Synchronized
     private fun onSample(x: Float, y: Float, z: Float) {
-        val chunk = buffer.add(MotionSample(platformCurrentTimeMillis(), x, y, z))
+        val sample = MotionSample(platformCurrentTimeMillis(), x, y, z)
+        
+        quiescenceDetector.onSample(sample)?.let { isQuiescent ->
+            quiescenceState.value = isQuiescent
+        }
+
+        val chunk = buffer.add(sample)
         if (chunk != null && !events.tryEmit(SensorPayload.MotionChunk(chunk))) {
             logger.warn(TAG, "dropped a motion chunk: events buffer full")
         }

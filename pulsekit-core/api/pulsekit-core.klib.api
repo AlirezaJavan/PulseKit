@@ -66,12 +66,15 @@ abstract interface io.github.alirezajavan.pulsekit.core/DataSource { // io.githu
         open fun <get-isSupported>(): kotlin/Boolean // io.github.alirezajavan.pulsekit.core/DataSource.isSupported.<get-isSupported>|<get-isSupported>(){}[0]
     open val optionalPermissions // io.github.alirezajavan.pulsekit.core/DataSource.optionalPermissions|{}optionalPermissions[0]
         open fun <get-optionalPermissions>(): kotlin.collections/List<io.github.alirezajavan.pulsekit.core.permission/Permission> // io.github.alirezajavan.pulsekit.core/DataSource.optionalPermissions.<get-optionalPermissions>|<get-optionalPermissions>(){}[0]
+    open val providesQuiescence // io.github.alirezajavan.pulsekit.core/DataSource.providesQuiescence|{}providesQuiescence[0]
+        open fun <get-providesQuiescence>(): kotlinx.coroutines.flow/Flow<kotlin/Boolean>? // io.github.alirezajavan.pulsekit.core/DataSource.providesQuiescence.<get-providesQuiescence>|<get-providesQuiescence>(){}[0]
     open val requiredPermissions // io.github.alirezajavan.pulsekit.core/DataSource.requiredPermissions|{}requiredPermissions[0]
         open fun <get-requiredPermissions>(): kotlin.collections/List<io.github.alirezajavan.pulsekit.core.permission/Permission> // io.github.alirezajavan.pulsekit.core/DataSource.requiredPermissions.<get-requiredPermissions>|<get-requiredPermissions>(){}[0]
 
     abstract fun events(): kotlinx.coroutines.flow/Flow<io.github.alirezajavan.pulsekit.core/SensorPayload> // io.github.alirezajavan.pulsekit.core/DataSource.events|events(){}[0]
     abstract suspend fun start(): kotlin/Boolean // io.github.alirezajavan.pulsekit.core/DataSource.start|start(){}[0]
     abstract suspend fun stop() // io.github.alirezajavan.pulsekit.core/DataSource.stop|stop(){}[0]
+    open fun onQuiescenceChanged(kotlin/Boolean) // io.github.alirezajavan.pulsekit.core/DataSource.onQuiescenceChanged|onQuiescenceChanged(kotlin.Boolean){}[0]
 }
 
 abstract interface io.github.alirezajavan.pulsekit.core/PulseKitLogger { // io.github.alirezajavan.pulsekit.core/PulseKitLogger|null[0]
@@ -84,6 +87,17 @@ abstract interface io.github.alirezajavan.pulsekit.core/SyncSource { // io.githu
     abstract suspend fun claimPendingBatch(kotlin/Int): kotlin.collections/List<io.github.alirezajavan.pulsekit.core.db/SensorEventLog> // io.github.alirezajavan.pulsekit.core/SyncSource.claimPendingBatch|claimPendingBatch(kotlin.Int){}[0]
     abstract suspend fun markFailed(kotlin.collections/List<kotlin/String>) // io.github.alirezajavan.pulsekit.core/SyncSource.markFailed|markFailed(kotlin.collections.List<kotlin.String>){}[0]
     abstract suspend fun markUploaded(kotlin.collections/List<kotlin/String>) // io.github.alirezajavan.pulsekit.core/SyncSource.markUploaded|markUploaded(kotlin.collections.List<kotlin.String>){}[0]
+}
+
+abstract interface io.github.alirezajavan.pulsekit.core/SyncStatusSnapshot { // io.github.alirezajavan.pulsekit.core/SyncStatusSnapshot|null[0]
+    abstract val isSyncing // io.github.alirezajavan.pulsekit.core/SyncStatusSnapshot.isSyncing|{}isSyncing[0]
+        abstract fun <get-isSyncing>(): kotlin/Boolean // io.github.alirezajavan.pulsekit.core/SyncStatusSnapshot.isSyncing.<get-isSyncing>|<get-isSyncing>(){}[0]
+    abstract val isWaitingForNetwork // io.github.alirezajavan.pulsekit.core/SyncStatusSnapshot.isWaitingForNetwork|{}isWaitingForNetwork[0]
+        abstract fun <get-isWaitingForNetwork>(): kotlin/Boolean // io.github.alirezajavan.pulsekit.core/SyncStatusSnapshot.isWaitingForNetwork.<get-isWaitingForNetwork>|<get-isWaitingForNetwork>(){}[0]
+    abstract val lastError // io.github.alirezajavan.pulsekit.core/SyncStatusSnapshot.lastError|{}lastError[0]
+        abstract fun <get-lastError>(): kotlin/String? // io.github.alirezajavan.pulsekit.core/SyncStatusSnapshot.lastError.<get-lastError>|<get-lastError>(){}[0]
+    abstract val lastSuccessTimestampMillis // io.github.alirezajavan.pulsekit.core/SyncStatusSnapshot.lastSuccessTimestampMillis|{}lastSuccessTimestampMillis[0]
+        abstract fun <get-lastSuccessTimestampMillis>(): kotlin/Long? // io.github.alirezajavan.pulsekit.core/SyncStatusSnapshot.lastSuccessTimestampMillis.<get-lastSuccessTimestampMillis>|<get-lastSuccessTimestampMillis>(){}[0]
 }
 
 sealed interface io.github.alirezajavan.pulsekit.core/CollectionMode { // io.github.alirezajavan.pulsekit.core/CollectionMode|null[0]

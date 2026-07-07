@@ -14,6 +14,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -49,6 +53,7 @@ class PulseKit private constructor(
     val syncSource: SyncSource get() = engine
 
     private val collectionJobs = mutableMapOf<String, Job>()
+    private var quiescenceJob: Job? = null
     private val mutableActiveSourceIds = MutableStateFlow(emptySet<String>())
 
     /**
@@ -93,6 +98,8 @@ class PulseKit private constructor(
         }
         if (toStart.isEmpty()) return
         engine.start()
+        startQuiescenceOrchestration()
+
         for (registered in toStart) {
             val sourceId = registered.dataSource.id
             if (!registered.dataSource.isSupported) {
@@ -142,6 +149,8 @@ class PulseKit private constructor(
     suspend fun stop() {
         stopSources(availableSourceIds)
         engine.stop()
+        quiescenceJob?.cancel()
+        quiescenceJob = null
     }
 
     /** Reactive total event count, e.g. to render "N events queued" in UI. */
@@ -186,6 +195,30 @@ class PulseKit private constructor(
      */
     fun dispose() {
         scope.cancel()
+    }
+
+    private fun startQuiescenceOrchestration() {
+        if (quiescenceJob?.isActive == true) return
+
+        quiescenceJob = scope.launch {
+            @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+            activeSourceIds
+                .flatMapLatest { ids ->
+                    val activeFlows = sources
+                        .filter { it.dataSource.id in ids }
+                        .mapNotNull { it.dataSource.providesQuiescence }
+                    
+                    if (activeFlows.isEmpty()) {
+                        flowOf(false)
+                    } else {
+                        combine(activeFlows) { states -> states.all { it } }
+                    }
+                }
+                .distinctUntilChanged()
+                .collect { isQuiescent ->
+                    sources.forEach { it.dataSource.onQuiescenceChanged(isQuiescent) }
+                }
+        }
     }
 
     private suspend fun runCollection(registered: RegisteredSource) {
