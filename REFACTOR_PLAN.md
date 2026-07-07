@@ -288,3 +288,273 @@ hours — the stationary case is pure battery waste with no signal value.
 - [x] **Quiescence detector depends on motion permission/hardware the host app didn't request**: `PulseKit` 
   correctly degrades to static sampling by only combining flows from active sources.
 - [x] **Battery-level adaptation**: Deferred to a future phase (signal is independent of motion).
+
+---
+
+## Phase 11 — Injectable clock + `pulsekit-testing` module (Not started)
+
+**Problem:** Time is a hard, non-injectable global. `platformCurrentTimeMillis()`
+(`TrackingEngine.kt:141`, also used in `PulseKit.recordEvents` at `PulseKit.kt:174`) is a public
+top-level `expect fun`, and `platformGenerateUuid()` (`TrackingEngine.kt:138`) is an `internal`
+one. Every timestamp and id in the event log is therefore produced by a process-wide singleton
+that no test can control — `SensorEventStoreTest`/`TrackingEngineTest` can't assert on exact
+timestamps, age-based pruning (`maxEventAgeMillis`) can only be tested via real `delay`, and
+**consumers** building on PulseKit have no supported way to drive it deterministically at all
+(no fakes, no in-memory DB helper, no log-capturing logger are exported). This phase makes time
+injectable and ships a first-class test artifact — the single highest-leverage "more testable"
+change, and a prerequisite that simplifies every later phase's tests.
+
+### Steps
+
+1. [ ] **`pulsekit-core/src/commonMain/.../TimeProvider.kt`** (new file) — a `fun interface
+   TimeProvider { fun nowMillis(): Long }` plus an `IdProvider` (`fun interface IdProvider {
+   fun newId(): String }`). Provide a `SystemTimeProvider`/`SystemIdProvider` default that
+   delegates to the existing `platformCurrentTimeMillis()`/`platformGenerateUuid()` — do **not**
+   delete the `expect`/`actual` funs, just wrap them, so the default path is byte-for-byte
+   unchanged.
+2. [ ] Thread `TimeProvider`/`IdProvider` through `TrackingEngine` (replace the two direct calls
+   in `logSensorEvent`) and `PulseKit.recordEvents`. Wire them in via `PulseKit.Builder` with
+   defaulted params (`timeProvider(...)`, `idProvider(...)`) so **no existing call site changes** —
+   this must stay additive, same as Phase 7's constructor rule.
+3. [ ] **New Gradle module `:pulsekit-testing`** (KMP, `commonMain` only; add to
+   `settings.gradle.kts` after `:pulsekit-ui`, apply the plain KMP convention plugin like
+   `pulsekit-sync/build.gradle.kts`, depend on `:pulsekit-core` `api`). It must be publishable
+   (goes through the same `apiCheck`/Maven config as the others) since consumers depend on it in
+   *their* tests.
+4. [ ] Populate `:pulsekit-testing` `commonMain` with:
+   - `FakeDataSource` — a configurable `DataSource` whose `start()` return value, `isSupported`,
+     `requiredPermissions`, and emitted `events()` are all script-driven; records how many times
+     `start()`/`stop()` were called (to assert the `DataSource.kt:45` "safe to call again" contract).
+   - `MutableTimeProvider` — a `TimeProvider` backed by a settable/advanceable millis value.
+   - `RecordingPulseKitLogger` — a `PulseKitLogger` that captures `(level, tag, message)` tuples
+     for assertions (mirrors what `PermissionControllerTest` currently fakes ad hoc).
+   - `inMemoryPulseKitDatabase()` — an `expect`/`actual` helper returning a `PulseKitDatabase` on a
+     throwaway in-memory SQLDelight driver (JdbcSqliteDriver in-memory on JVM/Android host, native
+     in-memory on iOS), so consumers test against real SQL without Robolectric.
+5. [ ] Migrate the internal ad-hoc fakes in `pulsekit-core`/`pulsekit-ui`/`pulsekit-sync` tests to
+   the new module where it reduces duplication (e.g. `SyncEngineTest`'s fake uploader can stay, but
+   any hand-rolled fake logger/clock should move) — proves the artifact is actually ergonomic.
+6. [ ] **Sample-app showcase:** add a `pulsekit-testing`-powered unit test under
+   `app/src/test/` (e.g. `PulseKitApplicationSyncTest`) that builds the app's `PulseKit` graph with
+   a `FakeDataSource` + `MutableTimeProvider`, drives a few events, and asserts the event count /
+   timestamps — demonstrating the intended consumer testing pattern end-to-end in the demo.
+
+### Edge cases to handle (and to write tests for)
+
+- **Determinism of `recordEvents` bulk path**: it currently stamps *every* row with the same
+  `platformCurrentTimeMillis()` in a `map` — with `MutableTimeProvider` a test can now assert
+  whether all rows share a timestamp or each advances; pick one behaviour and lock it with a test.
+- **In-memory driver isolation**: each `inMemoryPulseKitDatabase()` call must return a *fresh*
+  database — a shared in-memory URL leaks rows across tests and causes order-dependent flakiness.
+- **`apiCheck`**: `TimeProvider`/`IdProvider` and the new `Builder` methods are new public core API,
+  and the entire `:pulsekit-testing` surface is new — run `./gradlew apiDump` for both modules
+  after implementation and review that no SQLDelight driver internals leak into the public signature.
+- **Backward compat**: confirm `./gradlew build` passes **without** touching any existing
+  `PulseKit.builder(...)` call site (proves the new providers are optional).
+
+---
+
+## Phase 12 — Public event read/query API + export formats (Not started)
+
+**Problem:** There is **no supported way to read stored events back out**. `PulseKit` exposes only
+`observeEventCount(): Flow<Long>` (`PulseKit.kt:157`); the actual rows are reachable solely through
+the sync claim path (`SyncSource.claimPendingBatch`, which *mutates* status and is meant for
+upload, not reads). A consumer that wants to draw the last hour of GPS on a map, show a motion
+chart, or export a trip has to fork the library or hit SQLDelight directly. A read/query API plus
+standard export formats is the most requested "give me my data" capability and makes PulseKit
+attractive as more than a black-box uploader.
+
+### Steps
+
+1. [ ] **`SensorEventStore`** — add non-mutating read queries (new SQLDelight statements in the
+   `.sq` file next to `eventsByStatus`): `eventsBetween(from, to, limit)`,
+   `eventsByType(type, from, to, limit)`, and a reactive `observeRecentEvents(type, limit)`. Keep
+   them read-only (no `syncStatus` side effects) — the Phase 7 "claim-then-strand" lesson applies:
+   a read must never move a row into `PENDING_UPLOAD`.
+2. [ ] **`pulsekit-core/.../EventQuery.kt`** (new file) — a small immutable query descriptor
+   (`types: Set<String>?`, `from`/`to` millis, `limit`) and a public read-only result type
+   exposing `id`, `sensorType`, `timestamp`, and the typed `SensorPayload` (reuse `SensorPayload`
+   directly; do **not** invent a parallel DTO).
+3. [ ] **`PulseKit`** — add `suspend fun queryEvents(query: EventQuery): List<...>` and
+   `fun observeEvents(query: EventQuery): Flow<List<...>>`, delegating to the engine/store. These
+   are pure reads and safe to call whether or not any source is started (same guarantee as
+   `observeEventCount`).
+4. [ ] **New Gradle module `:pulsekit-export`** (KMP `commonMain`, depends on `:pulsekit-core`;
+   register in `settings.gradle.kts`). Provide pure, streaming-friendly formatters:
+   - `NdjsonExporter` — one `SensorEventLog` per line via the existing `kotlinx.serialization`
+     wiring (`SensorPayloadMapper`), works for every payload type.
+   - `GpxExporter` — emits a valid GPX 1.1 `<trk>` from `SensorPayload.Location` rows only
+     (skips non-location types), the canonical format map/fitness tools import.
+   - `CsvExporter` — flattens `Location`/`StepCount` scalar rows to CSV; documents that
+     `MotionChunk` expands to one row per `MotionSample`.
+   Formatters take a `Sequence`/`Flow` of events and write to an `Appendable`/sink so a multi-day
+   export never materializes the whole table in memory.
+5. [ ] **Sample-app showcase:** add an "Export / History" screen to the demo (new
+   `app/.../demo/HistoryScreen.kt` + a `Destinations` entry) that runs an `EventQuery` for recent
+   events, renders them in a list, and has a "Share as GPX/NDJSON" button wiring `:pulsekit-export`
+   into an Android share intent. Add the module to `app/build.gradle.kts`.
+
+### Edge cases to handle (and to write tests for)
+
+- **Large result sets**: `queryEvents` must enforce/require a `limit`; an unbounded query on a
+  50k-row table (the `maxStoredEvents` default) should not be the easy default. The `Flow`/`Sequence`
+  export path is the mechanism for "all of it".
+- **Type filtering correctness**: `GpxExporter`/`CsvExporter` fed a mixed stream (motion + BLE +
+  location) must silently skip incompatible payloads, not throw or emit malformed output — test
+  with a deliberately mixed fixture.
+- **XML/CSV injection & escaping**: BLE device `name` and any string field can contain `<`, `&`,
+  commas, quotes, newlines — GPX must XML-escape, CSV must quote/escape. Cover with adversarial
+  field values.
+- **Empty export**: zero matching rows must produce a well-formed-but-empty document (valid empty
+  GPX, header-only CSV), not a crash or a zero-byte file.
+- **`apiCheck`**: `EventQuery`, the new `PulseKit` read methods, and the whole `:pulsekit-export`
+  surface are new public API — `apiDump` both, and verify no SQLDelight `Query`/row types leak out.
+
+---
+
+## Phase 13 — Event processing pipeline / interceptors (Not started)
+
+**Problem:** Events go straight from source to storage with no seam in between.
+`collectContinuously`/`collectPeriodically` call `engine.logSensorEvent(payload, source.id)`
+directly (`PulseKit.kt:238`, `:253`). There is nowhere for a consumer to **transform, enrich,
+filter, or drop** an event before it's persisted — no downsampling, no PII redaction (e.g. coarse-
+graining GPS), no derived-field enrichment, no per-type validation. Every such need today forces a
+fork. A small, ordered `EventProcessor` chain turns all of these into pure, independently testable
+units and is the extension point that later features (Phase 14 geofencing) build on. It also makes
+the core more scalable by keeping cross-cutting logic out of `TrackingEngine`.
+
+### Steps
+
+1. [ ] **`pulsekit-core/.../EventProcessor.kt`** (new file) — `fun interface EventProcessor {
+   fun process(event: SensorEventLog): SensorEventLog? }` where returning `null` drops the event.
+   Keep it synchronous and pure (no suspend, no I/O) so it can't stall the ingestion path or the
+   sensor callback thread; document that ordering is significant and processors run in registration
+   order.
+2. [ ] Decide the seam deliberately (record the choice in an ADR-style note): run the chain **once,
+   on the ingestion loop** inside `TrackingEngine.runIngestionLoop` (`TrackingEngine.kt:93`) right
+   before `store.insertEvents(batch)` — *not* in `logSensorEvent`, which is called from sensor
+   callback threads and must never do real work. Processing on the batch drain keeps producers
+   cheap and gives processors a natural batch boundary.
+3. [ ] Register processors via `PulseKit.Builder.addEventProcessor(...)` (defaulted to empty list;
+   additive constructor change, same rule as Phase 7). A drop (`null`) must decrement nothing that
+   was never counted and must be logged at `debug` (not per-event `warn`, to avoid log floods under
+   a dropping filter).
+4. [ ] Ship two built-in processors in `commonMain` as reference implementations + proof the seam
+   is ergonomic:
+   - `SamplingProcessor(type, keepEveryNth)` — cheap downsampling for a chatty source.
+   - `LocationPrecisionProcessor(decimalPlaces)` — rounds `Location.lat/lng` for privacy.
+5. [ ] **Sample-app showcase:** in `PulseKitApplication`, register a `LocationPrecisionProcessor`
+   (e.g. 3 decimal places) and surface a `SettingsScreen` toggle explaining "coarse location" —
+   demonstrating privacy-preserving collection without changing any data source.
+
+### Edge cases to handle (and to write tests for)
+
+- **A processor that throws**: one misbehaving processor must not poison the whole ingestion loop
+  and silently stop all persistence. Wrap each `process()` in a try/catch, log once per processor
+  id, and pass the event through unmodified (fail-open) — a dropped batch is worse than an
+  un-processed event. Test with a deliberately throwing processor.
+- **Chain that drops everything**: verify count/pruning/sync all behave sanely when a filter drops
+  100% of a source's events (no busy-loop, no stuck `PENDING_UPLOAD`).
+- **Ordering & idempotency**: `A then B` must observably differ from `B then A` where it should
+  (e.g. sample-then-redact vs redact-then-sample); lock ordering semantics with a test.
+- **Throughput**: re-run the existing `TrackingEngineStressTest` with a no-op processor registered
+  and confirm no material regression — the chain is on the hot path.
+- **`apiCheck`**: `EventProcessor`, the builtin processors, and `Builder.addEventProcessor` are new
+  public API; `apiDump` and confirm `SensorEventLog` is/stays part of the intended public surface
+  (it's now exposed to processor authors).
+
+---
+
+## Phase 14 — Geofencing trigger plugin (Not started)
+
+**Problem:** A location tracker that can't say "tell me when the device enters/leaves this region"
+is missing the single most-asked-for derived-location feature, and consumers currently have to
+re-derive it from the raw stream themselves. Built as a pure-logic `EventProcessor` (Phase 13) plus
+a thin observable, it stays fully testable and adds no new permission or platform surface (it
+consumes existing `SensorPayload.Location` events).
+
+### Steps
+
+1. [ ] **New Gradle module `:pulsekit-geofence`** (KMP `commonMain`, depends on `:pulsekit-core`;
+   register in `settings.gradle.kts`). No `androidMain`/`iosMain` needed — it's pure logic over the
+   location stream, which is exactly why it's cheap to test.
+2. [ ] **`GeofenceRegion.kt`** — immutable `id`, `latitude`, `longitude`, `radiusMeters`. Add a
+   pure `haversineMeters(...)` helper (common) with its own unit test against known distances.
+3. [ ] **`GeofenceProcessor`** — an `EventProcessor` that, for each `SensorPayload.Location`,
+   evaluates inside/outside for every registered region against the *previous* state and emits
+   `GeofenceEvent(regionId, Transition.ENTER|EXIT, timestamp)` on a change. It passes the original
+   event through untouched (enrich-and-observe, never drop). Expose the transitions as a
+   `SharedFlow<GeofenceEvent>` (replay 0) plus a snapshot `currentlyInside: Set<String>`.
+4. [ ] Debounce boundary flapping: a device hovering on a radius edge (GPS jitter) must not emit a
+   storm of ENTER/EXIT — apply hysteresis (e.g. exit only once beyond `radius + margin`), mirroring
+   the `debounceWindows` approach already used in `MotionQuiescenceDetector` (Phase 10).
+5. [ ] **Sample-app showcase:** add a "Geofences" demo screen where the user drops a region at the
+   current location and sees a live ENTER/EXIT log; wire `GeofenceProcessor` into
+   `PulseKitApplication` and collect its `SharedFlow` into the screen. Add the module to
+   `app/build.gradle.kts`.
+
+### Edge cases to handle (and to write tests for)
+
+- **First fix inside a region**: the very first location already inside a geofence — decide and
+  test whether that emits an ENTER (no prior state) or is treated as the initial baseline; document
+  the choice.
+- **Accuracy-aware transitions**: a `Location` with a huge `accuracy` radius shouldn't trigger a
+  confident ENTER/EXIT — optionally suppress transitions when `accuracy > radiusMeters`; cover both
+  behaviours with a config flag + test.
+- **Antimeridian / pole correctness**: `haversine` must be right near ±180° longitude and high
+  latitudes — include fixture points there so a naive flat-earth delta doesn't slip through.
+- **Many regions × high-frequency fixes**: N regions evaluated per fix is O(N) — keep it allocation-
+  free on the hot path (it runs inside the ingestion chain) and add a stress test with dozens of
+  regions.
+- **`apiCheck`**: the whole `:pulsekit-geofence` surface is new public API; `apiDump` it.
+
+---
+
+## Phase 15 — JVM / Desktop target (Not started)
+
+**Problem:** PulseKit targets only Android and iOS. That blocks three attractive, scalable use
+cases and one big testability win: (1) a **desktop/JVM** consumer (a companion app, a lab data
+collector), (2) **server-side reuse** of the same `SensorPayload`/`SyncEventDto` model and
+`:pulsekit-export` formatters for ingestion pipelines, and (3) running `:pulsekit-core`/
+`:pulsekit-sync` logic tests as **plain fast JVM tests instead of Robolectric**. Everything below
+the platform actuals is already pure KMP, so the pure modules should light up on `jvm()` cheaply;
+the point of this phase is to prove exactly which modules can and to gate the rest honestly.
+
+### Steps
+
+1. [ ] **Audit which modules are jvm-eligible.** `:pulsekit-core`, `:pulsekit-sync`,
+   `:pulsekit-testing` (Phase 11), `:pulsekit-export` (Phase 12), and `:pulsekit-geofence`
+   (Phase 14) are pure logic; `:pulsekit-location`/`-motion`/`-bluetooth`/`-ui` are inherently
+   platform-bound and stay Android/iOS-only. List the verdict per module before touching build files.
+2. [ ] Add a `jvm()` target to the KMP convention plugin path
+   (`build-logic/.../KotlinMultiplatform.kt`) or, if that's too broad, to the individual eligible
+   modules' `build.gradle.kts`. Provide `jvmMain` `actual`s for the `expect` declarations those
+   modules rely on — `platformCurrentTimeMillis`, `platformGenerateUuid`
+   (`TrackingEngine.kt:138,141`), `DatabaseDriverFactory` (JdbcSqliteDriver), and `NetworkMonitor`
+   (`pulsekit-sync/.../NetworkMonitor.kt` — a JVM `actual`, likely reporting a single
+   `UNMETERED`/`UNKNOWN` since desktops have no cellular concept).
+3. [ ] Provide the `jvmMain` `actual` for `:pulsekit-testing`'s `inMemoryPulseKitDatabase()` first
+   (unblocks running the rest of the JVM tests) — JdbcSqliteDriver in-memory.
+4. [ ] Move core/sync unit tests that are currently `androidHostTest` **only because of the driver**
+   into `commonTest` where they now also run on `jvm` — keep genuinely Android-framework-dependent
+   tests (Robolectric ones in `-ui`) where they are.
+5. [ ] **Sample showcase (not the Android app):** add a tiny `:samples:jvm-collector` Gradle module
+   — a `main()` that builds a `PulseKit` with a `FakeDataSource`, records a batch, and dumps it via
+   `:pulsekit-export`'s `NdjsonExporter` to stdout. This is the JVM analogue of "update the sample
+   app to showcase it" and doubles as living proof the JVM target actually links and runs.
+6. [ ] Wire the new `jvm` tests/targets into the GitHub Actions test workflow (Phase 6) so they run
+   in CI.
+
+### Edge cases to handle (and to write tests for)
+
+- **`binary-compatibility-validator` klib check** (`apiCheck`) currently covers iOS targets — adding
+  `jvm` adds a new ABI surface. Run `apiDump` and confirm the JVM `.api`/klib output is reviewed,
+  and that no `jvm`-only type accidentally becomes common public API.
+- **SQLDelight dialect parity**: JdbcSqliteDriver may differ subtly from Android's SQLite (e.g. the
+  `SQLITE_MAX_VARIABLE_NUMBER` chunking in `SensorEventStore.kt:78`) — run the IN-clause batching
+  test on JVM specifically.
+- **Coroutine dispatcher defaults**: `Dispatchers.Default`/`Main` behave differently on plain JVM
+  (no Android main looper) — ensure nothing in core assumes an Android main thread.
+- **Don't over-promise**: modules that stay Android/iOS-only must **not** silently gain a broken
+  `jvm` target — verify a JVM consumer depending only on the pure modules builds, and that pulling
+  `:pulsekit-location` on JVM fails fast/clearly rather than at runtime.
