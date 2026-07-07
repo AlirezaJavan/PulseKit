@@ -66,7 +66,7 @@ actual class MotionDataSource actual constructor(
     @Synchronized
     private fun onSample(x: Float, y: Float, z: Float) {
         val sample = MotionSample(platformCurrentTimeMillis(), x, y, z)
-        
+
         quiescenceDetector.onSample(sample)?.let { isQuiescent ->
             quiescenceState.value = isQuiescent
         }

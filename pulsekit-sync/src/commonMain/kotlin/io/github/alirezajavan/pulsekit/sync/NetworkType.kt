@@ -6,5 +6,5 @@ package io.github.alirezajavan.pulsekit.sync
 enum class NetworkType {
     NONE,
     METERED,
-    UNMETERED
+    UNMETERED,
 }

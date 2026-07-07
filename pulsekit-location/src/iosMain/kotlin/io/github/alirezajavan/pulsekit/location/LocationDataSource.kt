@@ -98,7 +98,8 @@ actual class LocationDataSource actual constructor(
         if (isQuiescent) {
             logger.debug(TAG, "Quiescence detected. Throttling location updates.")
             locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers
-            locationManager.distanceFilter = maxOf(config.minUpdateDistanceMeters.toDouble(), 1000.0)
+            locationManager.distanceFilter =
+                maxOf(config.minUpdateDistanceMeters.toDouble(), 1000.0)
         } else {
             logger.debug(TAG, "Movement detected. Restoring location updates.")
             locationManager.desiredAccuracy = kCLLocationAccuracyBest

@@ -52,7 +52,11 @@ class SyncEngine(
             if (config.requireUnmeteredNetwork) {
                 if (networkMonitor == null) {
                     if (!hasLoggedNetworkMonitorMissing) {
-                        logger.warn(TAG, "SyncConfig requires unmetered network but no NetworkMonitor provided. Sync blocked.")
+                        logger.warn(
+                            TAG,
+                            "SyncConfig requires unmetered network but no NetworkMonitor " +
+                                "provided. Sync blocked.",
+                        )
                         hasLoggedNetworkMonitorMissing = true
                     }
                     _state.value = _state.value.copy(isSyncing = false, isWaitingForNetwork = true)

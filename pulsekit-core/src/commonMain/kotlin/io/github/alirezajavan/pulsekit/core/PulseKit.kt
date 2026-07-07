@@ -207,7 +207,7 @@ class PulseKit private constructor(
                     val activeFlows = sources
                         .filter { it.dataSource.id in ids }
                         .mapNotNull { it.dataSource.providesQuiescence }
-                    
+
                     if (activeFlows.isEmpty()) {
                         flowOf(false)
                     } else {

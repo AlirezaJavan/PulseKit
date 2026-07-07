@@ -119,7 +119,7 @@ class LocationDataSourceTest {
         shadowLocationManager.setProviderEnabled(LocationManager.GPS_PROVIDER, true)
 
         dataSource.start()
-        
+
         val testLocation = Location(LocationManager.GPS_PROVIDER).apply {
             latitude = 37.7749
             longitude = -122.4194

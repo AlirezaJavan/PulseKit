@@ -159,7 +159,11 @@ class PulseKitTest {
         runCurrent()
 
         val persisted = pulseKit.syncSource.claimPendingBatch(limit = 10)
-        assertEquals(1, persisted.size, "recordEvent must not silently strand in the ingestion channel")
+        assertEquals(
+            1,
+            persisted.size,
+            "recordEvent must not silently strand in the ingestion channel",
+        )
         assertEquals("manual_ping", persisted.single().sensorType)
 
         pulseKit.stop()

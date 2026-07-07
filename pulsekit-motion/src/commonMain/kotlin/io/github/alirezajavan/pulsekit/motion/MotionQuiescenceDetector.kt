@@ -37,7 +37,7 @@ class MotionQuiescenceDetector(
             bufferIndex = 0
 
             val isWindowQuiescent = calculateVariance(buffer) < varianceThreshold
-            
+
             if (isWindowQuiescent != currentQuiescentState) {
                 consecutiveAgreements++
                 if (consecutiveAgreements >= debounceWindows) {

@@ -3,7 +3,6 @@ package io.github.alirezajavan.pulsekit.bluetooth
 import android.Manifest
 import android.app.Application
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanResult
 import android.content.Context
@@ -34,7 +33,8 @@ class BluetoothDataSourceTest {
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
-        val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        val bluetoothManager =
+            context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothAdapter = bluetoothManager.adapter
         dataSource = BluetoothDataSource(context)
     }
@@ -42,9 +42,9 @@ class BluetoothDataSourceTest {
     @Test
     fun startReturnsFalseWhenPermissionsAreMissing() = runTest {
         shadowOf(context).denyPermissions(Manifest.permission.BLUETOOTH_SCAN)
-        
+
         val result = dataSource.start()
-        
+
         assertFalse(result, "start() should return false when permissions are missing")
     }
 
@@ -52,9 +52,9 @@ class BluetoothDataSourceTest {
     fun startReturnsFalseWhenBluetoothIsDisabled() = runTest {
         shadowOf(context).grantPermissions(Manifest.permission.BLUETOOTH_SCAN)
         bluetoothAdapter.disable()
-        
+
         val result = dataSource.start()
-        
+
         assertFalse(result, "start() should return false when bluetooth is disabled")
     }
 
@@ -62,9 +62,9 @@ class BluetoothDataSourceTest {
     fun startReturnsTrueWhenReadyAndCallsStartScan() = runTest {
         shadowOf(context).grantPermissions(Manifest.permission.BLUETOOTH_SCAN)
         bluetoothAdapter.enable()
-        
+
         val result = dataSource.start()
-        
+
         assertTrue(result, "start() should return true when ready")
         val shadowScanner = shadowOf(bluetoothAdapter.bluetoothLeScanner)
         assertTrue(shadowScanner.scanCallbacks.isNotEmpty(), "should be scanning after start()")
@@ -74,14 +74,14 @@ class BluetoothDataSourceTest {
     fun stopIsIdempotentAndStopsScan() = runTest {
         shadowOf(context).grantPermissions(Manifest.permission.BLUETOOTH_SCAN)
         bluetoothAdapter.enable()
-        
+
         dataSource.start()
         val shadowScanner = shadowOf(bluetoothAdapter.bluetoothLeScanner)
         assertTrue(shadowScanner.scanCallbacks.isNotEmpty())
-        
+
         dataSource.stop()
         assertTrue(shadowScanner.scanCallbacks.isEmpty(), "should stop scanning after stop()")
-        
+
         dataSource.stop() // safe to call twice
     }
 
@@ -89,31 +89,35 @@ class BluetoothDataSourceTest {
     fun startIsIdempotentAndDoesNotRegisterDuplicateCallbacks() = runTest {
         shadowOf(context).grantPermissions(Manifest.permission.BLUETOOTH_SCAN)
         bluetoothAdapter.enable()
-        
+
         dataSource.start()
         dataSource.start()
-        
+
         val shadowScanner = shadowOf(bluetoothAdapter.bluetoothLeScanner)
-        assertEquals(1, shadowScanner.scanCallbacks.size, "should only have one active scan callback")
+        assertEquals(
+            1,
+            shadowScanner.scanCallbacks.size,
+            "should only have one active scan callback",
+        )
     }
 
     @Test
     fun eventsFlowEmitsScanResults() = runTest {
         shadowOf(context).grantPermissions(Manifest.permission.BLUETOOTH_SCAN)
         bluetoothAdapter.enable()
-        
+
         dataSource.start()
-        
+
         val testAddress = "00:11:22:33:44:55"
         val testDevice = bluetoothAdapter.getRemoteDevice(testAddress)
         val scanResult = ScanResult(testDevice, 0, 0, 0, 0, 0, -60, 0, null, 0L)
-        
+
         val deferred = async { dataSource.events().first() }
         yield()
-        
+
         val shadowScanner = shadowOf(bluetoothAdapter.bluetoothLeScanner)
         shadowScanner.scanCallbacks.forEach { it.onScanResult(0, scanResult) }
-        
+
         val received = deferred.await() as SensorPayload.BluetoothScan
         assertEquals(testAddress, received.address)
         assertEquals(-60, received.rssi)

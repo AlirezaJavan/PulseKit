@@ -26,9 +26,9 @@ class MotionQuiescenceDetectorTest {
         repeat(9) { assertNull(detector.onSample(quiescentSample)) }
         assertNull(detector.onSample(quiescentSample)) // Evaluation 2: Quiescent, agreement = 1
 
-        // Window 3: Quiescent
+        // Window 3: Quiescent -- Evaluation 3: Quiescent, agreement = 2 -> FLIP
         repeat(9) { assertNull(detector.onSample(quiescentSample)) }
-        assertEquals(true, detector.onSample(quiescentSample)) // Evaluation 3: Quiescent, agreement = 2 -> FLIP
+        assertEquals(true, detector.onSample(quiescentSample))
     }
 
     @Test
@@ -42,7 +42,7 @@ class MotionQuiescenceDetectorTest {
 
         // Initialize as quiescent (requires 2 windows to flip from initial false to true)
         repeat(20) { detector.onSample(quiescentSample) }
-        
+
         // Window 3: Moving (alternate 0 and 1)
         repeat(5) {
             assertNull(detector.onSample(MotionSample(0, 0f, 0f, 0f)))
@@ -54,7 +54,8 @@ class MotionQuiescenceDetectorTest {
             assertNull(detector.onSample(MotionSample(0, 0f, 0f, 0f)))
             assertNull(detector.onSample(MotionSample(0, 1f, 0f, 0f)))
         }
+        // Evaluation: Moving, agreement = 2 -> FLIP
         assertNull(detector.onSample(MotionSample(0, 0f, 0f, 0f)))
-        assertEquals(false, detector.onSample(MotionSample(0, 1f, 0f, 0f))) // Evaluation: Moving, agreement = 2 -> FLIP
+        assertEquals(false, detector.onSample(MotionSample(0, 1f, 0f, 0f)))
     }
 }

@@ -137,7 +137,7 @@ actual class LocationDataSource actual constructor(
         }
 
         logger.debug(TAG, "Quiescence changed to $isQuiescent. Adjusting interval to ${interval}ms")
-        
+
         locationManager.requestLocationUpdates(
             provider,
             interval,
