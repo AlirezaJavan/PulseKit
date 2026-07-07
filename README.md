@@ -6,11 +6,13 @@
 [![API](https://img.shields.io/badge/API-26%2B-brightgreen.svg)](https://android-arsenal.com/api?level=26)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-A Kotlin Multiplatform (Android + iOS) library for continuous or periodic, multi-day background
-sensor tracking — location, motion, step count, and BLE scanning — with batched local persistence
-and a pluggable sync engine that never assumes your backend's wire format. Each data source
-describes its own permissions, so the library handles manifest validation, foreground-service
-typing, and the permission-request UI for you.
+A Kotlin Multiplatform (Android + iOS) engine for continuous or periodic, multi-day background
+data collection from any pluggable `DataSource` — location, motion, step count, and BLE scanning
+ship out of the box, and adding your own (heart rate, a custom BLE peripheral, an internal sensor)
+is a matter of implementing one interface, not touching the core. Collected events get batched
+local persistence and a pluggable sync engine that never assumes your backend's wire format. Each
+data source describes its own permissions, so the library handles manifest validation,
+foreground-service typing, and the permission-request UI for you.
 
 ## Project Structure
 
@@ -22,6 +24,8 @@ Follows the **Now In Android**-style modular architecture, adapted for Kotlin Mu
 - **`pulsekit-location`**: GPS/network location `DataSource`.
 - **`pulsekit-motion`**: Raw accelerometer `DataSource` and step-counter `DataSource`.
 - **`pulsekit-bluetooth`**: BLE scan `DataSource`.
+- These three are reference implementations, not a closed set — any `DataSource` you write plugs
+  into the same engine (see [Adding a custom data source](#adding-a-custom-data-source)).
 - **`pulsekit-sync`**: Inversion-of-control network sync engine (`SyncEngine` handles retry/
   backoff; `SyncUploader` is the contract your app implements for its own backend, with
   `JsonHttpSyncUploader` provided as a ready-made default).
@@ -47,6 +51,10 @@ tracking, you only pull in `pulsekit-core` + `pulsekit-location`.
   `requiredPermissions`, and `optionalPermissions`, so the library derives manifest validation,
   foreground-service typing, and the permission-request UI for you — the app never hardcodes which
   permissions a source needs.
+- **Pluggable by design, not just by name**: `DataSource` is a four-method interface
+  (`start`/`stop`/`events`/permission metadata) with no knowledge of location, motion, or BLE baked
+  into `pulsekit-core`. Location/motion/BLE are the shipped reference implementations; a new sensor
+  is a new module that implements the interface, wired in the same way as the built-in ones.
 - **Batteries-included Android service**: extend `BasePulseKitService`, override only `pulseKit`,
   and get the whole foreground-service lifecycle, a customizable notification, wake-lock renewal,
   and permission-masked service typing for free.
@@ -235,6 +243,36 @@ syncEngine.observeState().collect { state ->
     // state.isSyncing, state.lastSuccessTimestampMillis, state.lastError, state.consecutiveFailures
 }
 ```
+
+### 6. Adding a custom data source
+
+`pulsekit-location`, `pulsekit-motion`, and `pulsekit-bluetooth` are reference implementations —
+`pulsekit-core` has no knowledge of any of them. Anything that can produce a stream of values on a
+schedule can become a `DataSource`:
+
+```kotlin
+class HeartRateDataSource(private val sensorManager: SensorManager) : DataSource {
+    override val id = "heart_rate"
+    override val displayName = "Heart Rate"
+    override val requiredPermissions = listOf(Permission.BODY_SENSORS)
+
+    private val _events = MutableSharedFlow<SensorPayload>(extraBufferCapacity = 16)
+
+    override suspend fun start(): Boolean {
+        // register your sensor listener, emit into _events
+        return true
+    }
+
+    override suspend fun stop() { /* unregister listener */ }
+
+    override fun events(): Flow<SensorPayload> = _events
+}
+```
+
+Register it exactly like a built-in source — `PulseKit.builder(database).addDataSource(HeartRateDataSource(sensorManager))`
+— and it gets manifest validation, foreground-service typing, and permission-request UI for free,
+the same as `LocationDataSource` or `BluetoothDataSource`. If it needs a new `Permission` that
+doesn't exist yet, see [Adding a new `Permission`](CLAUDE.md#adding-a-new-permission) in `CLAUDE.md`.
 
 ## Platform setup
 
