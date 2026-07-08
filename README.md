@@ -46,6 +46,12 @@ Follows the **Now In Android**-style modular architecture, adapted for Kotlin Mu
 - **`pulsekit-ui`**: Android infrastructure (Services, Receivers) and Jetpack Compose layer over
   `PermissionController`'s staged request flow -- pull this in if you want a ready-made
   `PermissionGate` composable instead of hand-writing the sequencing.
+- **`pulsekit-export`**: Pure, streaming-friendly exporters (`NdjsonExporter`, `GpxExporter`,
+  `CsvExporter`) that turn a `Flow`/`Sequence` of stored events into NDJSON, GPX 1.1, or CSV without
+  materializing the whole table in memory.
+- **`pulsekit-testing`**: First-class test artifact for consumers -- `FakeDataSource`,
+  `MutableTimeProvider`, `RecordingPulseKitLogger`, and `inMemoryPulseKitDatabase()` so an app can
+  drive `PulseKit` deterministically in its own tests without Robolectric.
 - **`app`**: Android demo app wiring all of the above together end-to-end.
 
 Feature modules depend only on `pulsekit-core`, never on each other — if you only need location
@@ -89,6 +95,21 @@ tracking, you only pull in `pulsekit-core` + `pulsekit-location`.
 - A pluggable `PulseKitLogger` (`PulseKit.Builder.logger(...)`, also accepted by `SyncEngine`) so
   you can route PulseKit's internal diagnostics (prune passes, failed uploads) through your own
   Timber/Crashlytics/etc. — silent by default.
+- Injectable `TimeProvider`/`IdProvider` (`PulseKit.Builder.timeProvider(...)`/`idProvider(...)`) —
+  every timestamp and id in the event log can be driven deterministically in tests instead of by an
+  unmockable process-wide clock/UUID singleton. Defaults are byte-for-byte unchanged for existing
+  callers.
+- A public, read-only event query API: `PulseKit.queryEvents(EventQuery)` /
+  `observeEvents(EventQuery)` filter by type and time range with a required `limit` — the sync claim
+  path stays the only place that mutates rows, so reads are always safe to call regardless of
+  collection or sync state.
+- `pulsekit-export`'s `NdjsonExporter`/`GpxExporter`/`CsvExporter` turn queried events straight into
+  shareable files — GPX for maps/fitness tools, NDJSON for a full-fidelity dump of every payload
+  type, CSV for spreadsheets — each silently skipping payload types it doesn't understand instead of
+  throwing on a mixed stream.
+- `pulsekit-testing` ships a `FakeDataSource` (scriptable start/stop/events, call-count assertions),
+  `MutableTimeProvider`, `RecordingPulseKitLogger`, and `inMemoryPulseKitDatabase()` so consumers can
+  unit test their own `PulseKit` integration against real SQL without Robolectric.
 
 ## Installation
 
@@ -96,12 +117,14 @@ Add whichever modules you need to your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("io.github.alirezajavan:pulsekit-core:0.2.0")
-    implementation("io.github.alirezajavan:pulsekit-location:0.2.0")
-    implementation("io.github.alirezajavan:pulsekit-motion:0.2.0")
-    implementation("io.github.alirezajavan:pulsekit-bluetooth:0.2.0")
-    implementation("io.github.alirezajavan:pulsekit-sync:0.2.0")
-    implementation("io.github.alirezajavan:pulsekit-ui:0.2.0") // optional
+    implementation("io.github.alirezajavan:pulsekit-core:0.3.0")
+    implementation("io.github.alirezajavan:pulsekit-location:0.3.0")
+    implementation("io.github.alirezajavan:pulsekit-motion:0.3.0")
+    implementation("io.github.alirezajavan:pulsekit-bluetooth:0.3.0")
+    implementation("io.github.alirezajavan:pulsekit-sync:0.3.0")
+    implementation("io.github.alirezajavan:pulsekit-ui:0.3.0") // optional
+    implementation("io.github.alirezajavan:pulsekit-export:0.3.0") // optional
+    testImplementation("io.github.alirezajavan:pulsekit-testing:0.3.0") // optional
 }
 ```
 
@@ -258,7 +281,66 @@ syncEngine.observeState().collect { state ->
 }
 ```
 
-### 6. Adding a custom data source
+### 6. Read back and export collected events
+
+`PulseKit` exposes a read-only query API alongside the sync claim path — reading never mutates
+`syncStatus`, so it's safe to call whether or not anything is currently collecting or syncing:
+
+```kotlin
+val query = EventQuery(
+    types = setOf("location"),          // null = every source
+    fromTimestamp = oneHourAgoMillis,
+    toTimestamp = System.currentTimeMillis(),
+    limit = 500,                        // required — no unbounded query on a large table
+)
+
+val recent: List<SensorEventLog> = pulseKit.queryEvents(query)
+val liveFeed: Flow<List<SensorEventLog>> = pulseKit.observeEvents(query)
+```
+
+`pulsekit-export` turns a `Flow`/`Sequence` of events into a shareable file without materializing
+the whole table in memory — pick the format that fits the consumer:
+
+```kotlin
+val events = pulseKit.queryEvents(query).asFlow()
+
+NdjsonExporter.export(events, output)  // one SensorEventLog per line, every payload type
+GpxExporter.export(events, output)     // GPX 1.1 <trk>, Location rows only
+CsvExporter.export(events, output)     // flattened Location/StepCount rows; MotionChunk expands
+                                        // to one row per sample
+```
+
+Mixed-type streams are handled gracefully: `GpxExporter`/`CsvExporter` silently skip payload types
+they don't understand instead of throwing, and an empty result set still produces a well-formed
+(if empty) document. See `HistoryScreen.kt` in `app/` for the full share-as-file flow.
+
+### 7. Test your integration with `pulsekit-testing`
+
+`pulsekit-testing` ships fakes for the pieces of `PulseKit` a test needs to control, so your app's
+tests can drive real `PulseKit` orchestration deterministically without Robolectric:
+
+```kotlin
+val timeProvider = MutableTimeProvider(initialMillis = 1000L)
+val logger = RecordingPulseKitLogger()
+val source = FakeDataSource(id = "fake")
+
+val pulseKit = PulseKit.builder(inMemoryPulseKitDatabase())
+    .addDataSource(source)
+    .timeProvider(timeProvider)
+    .logger(logger)
+    .build()
+
+pulseKit.start()
+source.emit(SensorPayload.StepCount(steps = 10))
+timeProvider.advanceBy(5_000)
+
+// source.getStartCount() / source.isRunning() assert the "safe to call again" DataSource contract;
+// inMemoryPulseKitDatabase() returns a fresh, isolated in-memory database on every call.
+```
+
+See `PulseKitShowcaseTest` under `app/src/test/` for the pattern end-to-end.
+
+### 8. Adding a custom data source
 
 `pulsekit-location`, `pulsekit-motion`, and `pulsekit-bluetooth` are reference implementations —
 `pulsekit-core` has no knowledge of any of them. Anything that can produce a stream of values on a

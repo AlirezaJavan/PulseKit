@@ -14,6 +14,15 @@ extensions.configure<ApplicationExtension> {
         versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField(
+            "String",
+            "PULSEKIT_LIBRARY_VERSION",
+            "\"${project.findProperty("VERSION_NAME")}\"",
+        )
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
