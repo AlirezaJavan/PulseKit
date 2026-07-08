@@ -59,6 +59,7 @@ sqldelight-runtime = { group = "app.cash.sqldelight", name = "runtime", version.
 sqldelight-coroutines-extensions = { group = "app.cash.sqldelight", name = "coroutines-extensions", version.ref = "sqldelight" }
 sqldelight-android-driver = { group = "app.cash.sqldelight", name = "android-driver", version.ref = "sqldelight" }
 sqldelight-native-driver = { group = "app.cash.sqldelight", name = "native-driver", version.ref = "sqldelight" }
+sqldelight-jdbc-driver = { group = "app.cash.sqldelight", name = "sqlite-driver", version.ref = "sqldelight" }
 
 # Build logic dependencies
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }

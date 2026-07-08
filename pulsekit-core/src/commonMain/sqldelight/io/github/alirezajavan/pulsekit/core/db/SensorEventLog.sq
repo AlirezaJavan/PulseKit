@@ -38,3 +38,14 @@ DELETE FROM SensorEventLog WHERE timestamp < :cutoffTimestamp;
 
 deleteAllEvents:
 DELETE FROM SensorEventLog;
+
+queryEvents:
+SELECT * FROM SensorEventLog
+WHERE (:allTypes OR sensorType IN :types)
+AND timestamp >= :fromTimestamp AND timestamp <= :toTimestamp
+ORDER BY timestamp ASC LIMIT :limit;
+
+recentEvents:
+SELECT * FROM SensorEventLog
+WHERE (:allTypes OR sensorType IN :types)
+ORDER BY timestamp DESC LIMIT :limit;

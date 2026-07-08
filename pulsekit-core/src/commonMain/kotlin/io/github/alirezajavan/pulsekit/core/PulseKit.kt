@@ -44,6 +44,8 @@ class PulseKit private constructor(
     private val sources: List<RegisteredSource>,
     private val scope: CoroutineScope,
     private val logger: PulseKitLogger,
+    private val timeProvider: TimeProvider,
+    private val idProvider: IdProvider,
 ) {
     private class RegisteredSource(val dataSource: DataSource, val mode: CollectionMode)
 
@@ -156,6 +158,19 @@ class PulseKit private constructor(
     /** Reactive total event count, e.g. to render "N events queued" in UI. */
     fun observeEventCount(): Flow<Long> = engine.observeEventCount()
 
+    /**
+     * Executes a one-off read of stored events matching [query].
+     * Always requires a limit to prevent excessive memory usage.
+     */
+    suspend fun queryEvents(query: EventQuery): List<SensorEventLog> = withContext(Dispatchers.Default) {
+        engine.queryEvents(query)
+    }
+
+    /**
+     * Returns a reactive flow of the most recent events matching [query].
+     */
+    fun observeEvents(query: EventQuery): Flow<List<SensorEventLog>> = engine.observeRecentEvents(query)
+
     /** Records a single one-off event outside the attached data sources. */
     fun recordEvent(payload: SensorPayload, type: String) {
         engine.logSensorEvent(payload, type)
@@ -169,9 +184,9 @@ class PulseKit private constructor(
         if (events.isEmpty()) return
         val entities = events.map { payload ->
             SensorEventLog(
-                id = platformGenerateUuid(),
+                id = idProvider.nextId(),
                 sensorType = type,
-                timestamp = platformCurrentTimeMillis(),
+                timestamp = timeProvider.nowMillis(),
                 payload = payload,
                 syncStatus = SyncStatus.IDLE,
             )
@@ -271,6 +286,8 @@ class PulseKit private constructor(
         private val sources = mutableListOf<RegisteredSource>()
         private var config = PulseKitConfig()
         private var logger: PulseKitLogger = NoOpPulseKitLogger
+        private var timeProvider: TimeProvider = SystemTimeProvider
+        private var idProvider: IdProvider = SystemIdProvider
         private var scopeOverride: CoroutineScope? = null
 
         /**
@@ -292,20 +309,31 @@ class PulseKit private constructor(
         /** Wire your own Timber/Crashlytics/os_log-backed [PulseKitLogger]; defaults to silent. */
         fun logger(logger: PulseKitLogger) = apply { this.logger = logger }
 
+        fun timeProvider(timeProvider: TimeProvider) = apply { this.timeProvider = timeProvider }
+
+        fun idProvider(idProvider: IdProvider) = apply { this.idProvider = idProvider }
+
         /** Test seam: run collection/persistence on an injected (e.g. virtual-time) scope. */
-        internal fun collectionScope(scope: CoroutineScope) = apply { scopeOverride = scope }
+        fun collectionScope(scope: CoroutineScope) = apply { scopeOverride = scope }
 
         fun build(): PulseKit {
             val scope = scopeOverride
                 ?: CoroutineScope(SupervisorJob() + Dispatchers.Default)
-            val engine = TrackingEngine(database, config, scope, logger)
+            val engine = TrackingEngine(
+                database = database,
+                config = config,
+                scope = scope,
+                logger = logger,
+                timeProvider = timeProvider,
+                idProvider = idProvider,
+            )
             // Persistence (ingestion + pruning) runs for the lifetime of PulseKit, independent of
             // whether any DataSource is collecting: recordEvent/recordEvents/observeEventCount/
             // eraseAllData are all documented as usable without a started source, but logSensorEvent
             // only ever drains through this loop -- leaving it started-on-first-source would silently
             // strand one-off recordEvent() calls in the ingestion channel until some source started.
             engine.start()
-            return PulseKit(engine, sources.toList(), scope, logger)
+            return PulseKit(engine, sources.toList(), scope, logger, timeProvider, idProvider)
         }
 
         /**

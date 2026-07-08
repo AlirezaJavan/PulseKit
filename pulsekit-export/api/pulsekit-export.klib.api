@@ -1,0 +1,19 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <PulseKit:pulsekit-export>
+final object io.github.alirezajavan.pulsekit.export/CsvExporter { // io.github.alirezajavan.pulsekit.export/CsvExporter|null[0]
+    final suspend fun export(kotlinx.coroutines.flow/Flow<io.github.alirezajavan.pulsekit.core.db/SensorEventLog>, kotlin.text/Appendable) // io.github.alirezajavan.pulsekit.export/CsvExporter.export|export(kotlinx.coroutines.flow.Flow<io.github.alirezajavan.pulsekit.core.db.SensorEventLog>;kotlin.text.Appendable){}[0]
+}
+
+final object io.github.alirezajavan.pulsekit.export/GpxExporter { // io.github.alirezajavan.pulsekit.export/GpxExporter|null[0]
+    final suspend fun export(kotlinx.coroutines.flow/Flow<io.github.alirezajavan.pulsekit.core.db/SensorEventLog>, kotlin.text/Appendable) // io.github.alirezajavan.pulsekit.export/GpxExporter.export|export(kotlinx.coroutines.flow.Flow<io.github.alirezajavan.pulsekit.core.db.SensorEventLog>;kotlin.text.Appendable){}[0]
+}
+
+final object io.github.alirezajavan.pulsekit.export/NdjsonExporter { // io.github.alirezajavan.pulsekit.export/NdjsonExporter|null[0]
+    final suspend fun export(kotlinx.coroutines.flow/Flow<io.github.alirezajavan.pulsekit.core.db/SensorEventLog>, kotlin.text/Appendable) // io.github.alirezajavan.pulsekit.export/NdjsonExporter.export|export(kotlinx.coroutines.flow.Flow<io.github.alirezajavan.pulsekit.core.db.SensorEventLog>;kotlin.text.Appendable){}[0]
+}

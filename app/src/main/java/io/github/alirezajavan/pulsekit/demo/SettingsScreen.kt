@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import io.github.alirezajavan.pulsekit.BuildConfig
 import io.github.alirezajavan.pulsekit.bluetooth.BluetoothConfig
 import io.github.alirezajavan.pulsekit.core.permission.Permission
 import io.github.alirezajavan.pulsekit.core.permission.PermissionStatus
@@ -241,7 +242,7 @@ private fun AboutCard() {
             Column {
                 Text("PulseKit demo", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
                 Text(
-                    "App v${packageInfo.versionName} · Library v0.2.0",
+                    "App v${packageInfo.versionName} · Library v${BuildConfig.PULSEKIT_LIBRARY_VERSION}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

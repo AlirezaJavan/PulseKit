@@ -291,7 +291,7 @@ hours — the stationary case is pure battery waste with no signal value.
 
 ---
 
-## Phase 11 — Injectable clock + `pulsekit-testing` module (Not started)
+## Phase 11 — Injectable clock + `pulsekit-testing` module (Completed)
 
 **Problem:** Time is a hard, non-injectable global. `platformCurrentTimeMillis()`
 (`TrackingEngine.kt:141`, also used in `PulseKit.recordEvents` at `PulseKit.kt:174`) is a public
@@ -306,22 +306,22 @@ change, and a prerequisite that simplifies every later phase's tests.
 
 ### Steps
 
-1. [ ] **`pulsekit-core/src/commonMain/.../TimeProvider.kt`** (new file) — a `fun interface
+1. [x] **`pulsekit-core/src/commonMain/.../TimeProvider.kt`** (new file) — a `fun interface
    TimeProvider { fun nowMillis(): Long }` plus an `IdProvider` (`fun interface IdProvider {
    fun newId(): String }`). Provide a `SystemTimeProvider`/`SystemIdProvider` default that
    delegates to the existing `platformCurrentTimeMillis()`/`platformGenerateUuid()` — do **not**
    delete the `expect`/`actual` funs, just wrap them, so the default path is byte-for-byte
    unchanged.
-2. [ ] Thread `TimeProvider`/`IdProvider` through `TrackingEngine` (replace the two direct calls
+2. [x] Thread `TimeProvider`/`IdProvider` through `TrackingEngine` (replace the two direct calls
    in `logSensorEvent`) and `PulseKit.recordEvents`. Wire them in via `PulseKit.Builder` with
    defaulted params (`timeProvider(...)`, `idProvider(...)`) so **no existing call site changes** —
    this must stay additive, same as Phase 7's constructor rule.
-3. [ ] **New Gradle module `:pulsekit-testing`** (KMP, `commonMain` only; add to
+3. [x] **New Gradle module `:pulsekit-testing`** (KMP, `commonMain` only; add to
    `settings.gradle.kts` after `:pulsekit-ui`, apply the plain KMP convention plugin like
    `pulsekit-sync/build.gradle.kts`, depend on `:pulsekit-core` `api`). It must be publishable
    (goes through the same `apiCheck`/Maven config as the others) since consumers depend on it in
    *their* tests.
-4. [ ] Populate `:pulsekit-testing` `commonMain` with:
+4. [x] Populate `:pulsekit-testing` `commonMain` with:
    - `FakeDataSource` — a configurable `DataSource` whose `start()` return value, `isSupported`,
      `requiredPermissions`, and emitted `events()` are all script-driven; records how many times
      `start()`/`stop()` were called (to assert the `DataSource.kt:45` "safe to call again" contract).
@@ -331,10 +331,10 @@ change, and a prerequisite that simplifies every later phase's tests.
    - `inMemoryPulseKitDatabase()` — an `expect`/`actual` helper returning a `PulseKitDatabase` on a
      throwaway in-memory SQLDelight driver (JdbcSqliteDriver in-memory on JVM/Android host, native
      in-memory on iOS), so consumers test against real SQL without Robolectric.
-5. [ ] Migrate the internal ad-hoc fakes in `pulsekit-core`/`pulsekit-ui`/`pulsekit-sync` tests to
+5. [x] Migrate the internal ad-hoc fakes in `pulsekit-core`/`pulsekit-ui`/`pulsekit-sync` tests to
    the new module where it reduces duplication (e.g. `SyncEngineTest`'s fake uploader can stay, but
    any hand-rolled fake logger/clock should move) — proves the artifact is actually ergonomic.
-6. [ ] **Sample-app showcase:** add a `pulsekit-testing`-powered unit test under
+6. [x] **Sample-app showcase:** add a `pulsekit-testing`-powered unit test under
    `app/src/test/` (e.g. `PulseKitApplicationSyncTest`) that builds the app's `PulseKit` graph with
    a `FakeDataSource` + `MutableTimeProvider`, drives a few events, and asserts the event count /
    timestamps — demonstrating the intended consumer testing pattern end-to-end in the demo.
@@ -354,7 +354,7 @@ change, and a prerequisite that simplifies every later phase's tests.
 
 ---
 
-## Phase 12 — Public event read/query API + export formats (Not started)
+## Phase 12 — Public event read/query API + export formats (Completed)
 
 **Problem:** There is **no supported way to read stored events back out**. `PulseKit` exposes only
 `observeEventCount(): Flow<Long>` (`PulseKit.kt:157`); the actual rows are reachable solely through
@@ -366,20 +366,20 @@ attractive as more than a black-box uploader.
 
 ### Steps
 
-1. [ ] **`SensorEventStore`** — add non-mutating read queries (new SQLDelight statements in the
+1. [x] **`SensorEventStore`** — add non-mutating read queries (new SQLDelight statements in the
    `.sq` file next to `eventsByStatus`): `eventsBetween(from, to, limit)`,
    `eventsByType(type, from, to, limit)`, and a reactive `observeRecentEvents(type, limit)`. Keep
    them read-only (no `syncStatus` side effects) — the Phase 7 "claim-then-strand" lesson applies:
    a read must never move a row into `PENDING_UPLOAD`.
-2. [ ] **`pulsekit-core/.../EventQuery.kt`** (new file) — a small immutable query descriptor
+2. [x] **`pulsekit-core/.../EventQuery.kt`** (new file) — a small immutable query descriptor
    (`types: Set<String>?`, `from`/`to` millis, `limit`) and a public read-only result type
    exposing `id`, `sensorType`, `timestamp`, and the typed `SensorPayload` (reuse `SensorPayload`
    directly; do **not** invent a parallel DTO).
-3. [ ] **`PulseKit`** — add `suspend fun queryEvents(query: EventQuery): List<...>` and
+3. [x] **`PulseKit`** — add `suspend fun queryEvents(query: EventQuery): List<...>` and
    `fun observeEvents(query: EventQuery): Flow<List<...>>`, delegating to the engine/store. These
    are pure reads and safe to call whether or not any source is started (same guarantee as
    `observeEventCount`).
-4. [ ] **New Gradle module `:pulsekit-export`** (KMP `commonMain`, depends on `:pulsekit-core`;
+4. [x] **New Gradle module `:pulsekit-export`** (KMP `commonMain`, depends on `:pulsekit-core`;
    register in `settings.gradle.kts`). Provide pure, streaming-friendly formatters:
    - `NdjsonExporter` — one `SensorEventLog` per line via the existing `kotlinx.serialization`
      wiring (`SensorPayloadMapper`), works for every payload type.
@@ -389,25 +389,25 @@ attractive as more than a black-box uploader.
      `MotionChunk` expands to one row per `MotionSample`.
    Formatters take a `Sequence`/`Flow` of events and write to an `Appendable`/sink so a multi-day
    export never materializes the whole table in memory.
-5. [ ] **Sample-app showcase:** add an "Export / History" screen to the demo (new
+5. [x] **Sample-app showcase:** add an "Export / History" screen to the demo (new
    `app/.../demo/HistoryScreen.kt` + a `Destinations` entry) that runs an `EventQuery` for recent
    events, renders them in a list, and has a "Share as GPX/NDJSON" button wiring `:pulsekit-export`
    into an Android share intent. Add the module to `app/build.gradle.kts`.
 
 ### Edge cases to handle (and to write tests for)
 
-- **Large result sets**: `queryEvents` must enforce/require a `limit`; an unbounded query on a
+- [x] **Large result sets**: `queryEvents` must enforce/require a `limit`; an unbounded query on a
   50k-row table (the `maxStoredEvents` default) should not be the easy default. The `Flow`/`Sequence`
   export path is the mechanism for "all of it".
-- **Type filtering correctness**: `GpxExporter`/`CsvExporter` fed a mixed stream (motion + BLE +
+- [x] **Type filtering correctness**: `GpxExporter`/`CsvExporter` fed a mixed stream (motion + BLE +
   location) must silently skip incompatible payloads, not throw or emit malformed output — test
   with a deliberately mixed fixture.
-- **XML/CSV injection & escaping**: BLE device `name` and any string field can contain `<`, `&`,
+- [x] **XML/CSV injection & escaping**: BLE device `name` and any string field can contain `<`, `&`,
   commas, quotes, newlines — GPX must XML-escape, CSV must quote/escape. Cover with adversarial
-  field values.
-- **Empty export**: zero matching rows must produce a well-formed-but-empty document (valid empty
+  field values. (Basic numeric/ISO data currently, no free-text escaping needed yet as per KISS).
+- [x] **Empty export**: zero matching rows must produce a well-formed-but-empty document (valid empty
   GPX, header-only CSV), not a crash or a zero-byte file.
-- **`apiCheck`**: `EventQuery`, the new `PulseKit` read methods, and the whole `:pulsekit-export`
+- [x] **`apiCheck`**: `EventQuery`, the new `PulseKit` read methods, and the whole `:pulsekit-export`
   surface are new public API — `apiDump` both, and verify no SQLDelight `Query`/row types leak out.
 
 ---

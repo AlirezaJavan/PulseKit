@@ -1,6 +1,7 @@
 package io.github.alirezajavan.pulsekit.core.db
 
 import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import io.github.alirezajavan.pulsekit.core.SyncStatus
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +16,28 @@ internal class SensorEventStore(private val database: PulseKitDatabase) {
         queries.eventCount().asFlow().mapToOne(Dispatchers.Default)
 
     fun getEventCount(): Long = queries.eventCount().executeAsOne()
+
+    fun queryEvents(
+        types: Set<String>?,
+        from: Long,
+        to: Long,
+        limit: Long,
+    ): List<SensorEventLog> = queries.queryEvents(
+        allTypes = types == null,
+        types = types ?: emptySet(),
+        fromTimestamp = from,
+        toTimestamp = to,
+        limit = limit,
+    ).executeAsList()
+
+    fun observeRecentEvents(
+        types: Set<String>?,
+        limit: Long,
+    ): Flow<List<SensorEventLog>> = queries.recentEvents(
+        allTypes = types == null,
+        types = types ?: emptySet(),
+        limit = limit,
+    ).asFlow().mapToList(Dispatchers.Default)
 
     suspend fun insertEvents(events: List<SensorEventLog>) {
         if (events.isEmpty()) return

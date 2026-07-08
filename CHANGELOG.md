@@ -4,12 +4,54 @@ All notable changes to PulseKit are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This project uses
 [Semantic Versioning](https://semver.org/).
 
-## [0.2.0] - Unreleased
+## [0.3.0] - Unreleased
 
 ### Added
+- `pulsekit-core`: **injectable `TimeProvider`/`IdProvider`**. `TrackingEngine` and
+  `PulseKit.recordEvents` no longer call the process-wide `platformCurrentTimeMillis()`/
+  `platformGenerateUuid()` directly -- `PulseKit.Builder.timeProvider(...)`/`idProvider(...)` take a
+  `TimeProvider`/`IdProvider` fun interface, defaulting to `SystemTimeProvider`/`SystemIdProvider`
+  (which wrap the same platform calls, so the default path is byte-for-byte unchanged). Every
+  timestamp/id in the event log can now be driven deterministically in tests.
+- **New Gradle module `pulsekit-testing`**: a first-class test artifact for consumers --
+  `FakeDataSource` (scriptable `start()`/`isSupported`/`requiredPermissions`/`events()`, with
+  start/stop call counts to assert the "safe to call again" `DataSource` contract),
+  `MutableTimeProvider` (settable/advanceable clock), `RecordingPulseKitLogger` (captures
+  level/tag/message tuples), and `inMemoryPulseKitDatabase()` (a fresh in-memory `PulseKitDatabase`
+  per call, Android host + iOS native drivers) -- lets an app unit test its own `PulseKit`
+  integration against real SQL without Robolectric.
+- `pulsekit-core`: **public read/query API**. `SensorEventStore` gained non-mutating read queries
+  (`eventsBetween`, `eventsByType`, reactive `observeRecentEvents`) alongside the existing
+  sync-claim path, which stays the only place a read can flip `syncStatus`. `EventQuery` (`types`,
+  `fromTimestamp`/`toTimestamp`, required `limit`) is the query descriptor; `PulseKit.queryEvents(
+  query)` / `observeEvents(query)` are pure reads, safe to call regardless of collection/sync
+  state, and enforce `limit` so a 50k-row table can't be queried unbounded by accident.
+- **New Gradle module `pulsekit-export`**: streaming-friendly formatters over a `Flow` of stored
+  events so a multi-day export never materializes the whole table in memory --
+  `NdjsonExporter` (one `SensorEventLog` per line, every payload type), `GpxExporter` (valid GPX
+  1.1 `<trk>` from `SensorPayload.Location` rows, other types silently skipped), and `CsvExporter`
+  (flattens `Location`/`StepCount` to CSV rows; `MotionChunk` expands to one row per sample). All
+  three produce a well-formed but empty document on a zero-row result instead of crashing or
+  emitting a zero-byte file.
+- Demo app: new "History" screen (`app/.../demo/HistoryScreen.kt`) queries recent events via
+  `EventQuery`, renders them in a list, and shares them as NDJSON/GPX/CSV through an Android share
+  intent -- an end-to-end showcase of `pulsekit-export` wired to `PulseKit.queryEvents`.
+- Demo app: `PulseKitShowcaseTest` (`app/src/test/`) demonstrates the intended consumer testing
+  pattern -- builds the app's `PulseKit` graph with `FakeDataSource` + `MutableTimeProvider` on an
+  in-memory database, drives events through virtual time, and asserts exact timestamps/counts.
 - `pulsekit-sync`: **Network-aware sync policy**. `SyncConfig` now includes `requireUnmeteredNetwork` (defaults to `false`), allowing host apps to restrict data uploads to unmetered connections (e.g., Wi-Fi).
 - `pulsekit-sync`: `NetworkMonitor` (expect/actual) for Android (`ConnectivityManager`) and iOS (`NWPathMonitor`) to detect network metering status.
 - `pulsekit-sync`: `SyncState.waitingForNetwork` boolean flag to observe when syncing is paused due to network policy.
+
+### Changed
+- Demo app: `AboutCard`'s "Library v…" label now reads `BuildConfig.PULSEKIT_LIBRARY_VERSION`
+  (sourced from `gradle.properties`' `VERSION_NAME` via a `buildConfigField`) instead of a
+  hardcoded string, so it can't drift out of sync with the published library version again.
+
+### apiCheck
+- `EventQuery`, `PulseKit.queryEvents`/`observeEvents`, `TimeProvider`/`IdProvider`, and the whole
+  `pulsekit-testing`/`pulsekit-export` public surfaces are new -- `apiDump` reviewed for both new
+  modules and `pulsekit-core`; no SQLDelight `Query`/row/driver types leak into any public signature.
 
 ## [0.1.1] - 2026-07-06
 
