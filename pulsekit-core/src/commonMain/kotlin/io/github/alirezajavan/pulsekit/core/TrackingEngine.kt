@@ -25,6 +25,8 @@ internal class TrackingEngine(
     private val config: PulseKitConfig = PulseKitConfig(),
     private val scope: CoroutineScope,
     private val logger: PulseKitLogger = NoOpPulseKitLogger,
+    private val timeProvider: TimeProvider = SystemTimeProvider,
+    private val idProvider: IdProvider = SystemIdProvider,
 ) : SyncSource {
     private val store = SensorEventStore(database)
 
@@ -51,12 +53,24 @@ internal class TrackingEngine(
     /** Reactive count of all stored events, safe to render in UI without loading rows. */
     fun observeEventCount(): Flow<Long> = store.observeEventCount()
 
+    fun queryEvents(query: EventQuery): List<SensorEventLog> = store.queryEvents(
+        types = query.types,
+        from = query.fromTimestamp,
+        to = query.toTimestamp,
+        limit = query.limit,
+    )
+
+    fun observeRecentEvents(query: EventQuery): Flow<List<SensorEventLog>> = store.observeRecentEvents(
+        types = query.types,
+        limit = query.limit,
+    )
+
     /** Enqueues an event for batched persistence. Never suspends; safe to call from sensor callbacks. */
     fun logSensorEvent(payload: SensorPayload, sensorType: String) {
         val event = SensorEventLog(
-            id = platformGenerateUuid(),
+            id = idProvider.nextId(),
             sensorType = sensorType,
-            timestamp = platformCurrentTimeMillis(),
+            timestamp = timeProvider.nowMillis(),
             payload = payload,
             syncStatus = SyncStatus.IDLE,
         )
@@ -124,7 +138,7 @@ internal class TrackingEngine(
             }
             val maxAge = config.maxEventAgeMillis
             if (maxAge != null) {
-                store.pruneEventsOlderThan(platformCurrentTimeMillis() - maxAge)
+                store.pruneEventsOlderThan(timeProvider.nowMillis() - maxAge)
             }
         }
     }

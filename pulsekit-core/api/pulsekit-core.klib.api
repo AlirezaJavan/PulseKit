@@ -45,6 +45,14 @@ final enum class io.github.alirezajavan.pulsekit.core/SyncStatus : kotlin/Enum<i
     final fun values(): kotlin/Array<io.github.alirezajavan.pulsekit.core/SyncStatus> // io.github.alirezajavan.pulsekit.core/SyncStatus.values|values#static(){}[0]
 }
 
+abstract fun interface io.github.alirezajavan.pulsekit.core/IdProvider { // io.github.alirezajavan.pulsekit.core/IdProvider|null[0]
+    abstract fun nextId(): kotlin/String // io.github.alirezajavan.pulsekit.core/IdProvider.nextId|nextId(){}[0]
+}
+
+abstract fun interface io.github.alirezajavan.pulsekit.core/TimeProvider { // io.github.alirezajavan.pulsekit.core/TimeProvider|null[0]
+    abstract fun nowMillis(): kotlin/Long // io.github.alirezajavan.pulsekit.core/TimeProvider.nowMillis|nowMillis(){}[0]
+}
+
 abstract interface io.github.alirezajavan.pulsekit.core.db/PulseKitDatabase : app.cash.sqldelight/Transacter { // io.github.alirezajavan.pulsekit.core.db/PulseKitDatabase|null[0]
     abstract val sensorEventLogQueries // io.github.alirezajavan.pulsekit.core.db/PulseKitDatabase.sensorEventLogQueries|{}sensorEventLogQueries[0]
         abstract fun <get-sensorEventLogQueries>(): io.github.alirezajavan.pulsekit.core.db/SensorEventLogQueries // io.github.alirezajavan.pulsekit.core.db/PulseKitDatabase.sensorEventLogQueries.<get-sensorEventLogQueries>|<get-sensorEventLogQueries>(){}[0]
@@ -294,6 +302,8 @@ final class io.github.alirezajavan.pulsekit.core.db/SensorEventLogQueries : app.
     constructor <init>(app.cash.sqldelight.db/SqlDriver, io.github.alirezajavan.pulsekit.core.db/SensorEventLog.Adapter) // io.github.alirezajavan.pulsekit.core.db/SensorEventLogQueries.<init>|<init>(app.cash.sqldelight.db.SqlDriver;io.github.alirezajavan.pulsekit.core.db.SensorEventLog.Adapter){}[0]
 
     final fun <#A1: kotlin/Any> eventsByStatus(io.github.alirezajavan.pulsekit.core/SyncStatus, kotlin/Long, kotlin/Function5<kotlin/String, kotlin/String, kotlin/Long, io.github.alirezajavan.pulsekit.core/SensorPayload, io.github.alirezajavan.pulsekit.core/SyncStatus, #A1>): app.cash.sqldelight/Query<#A1> // io.github.alirezajavan.pulsekit.core.db/SensorEventLogQueries.eventsByStatus|eventsByStatus(io.github.alirezajavan.pulsekit.core.SyncStatus;kotlin.Long;kotlin.Function5<kotlin.String,kotlin.String,kotlin.Long,io.github.alirezajavan.pulsekit.core.SensorPayload,io.github.alirezajavan.pulsekit.core.SyncStatus,0:0>){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> queryEvents(kotlin/Boolean, kotlin.collections/Collection<kotlin/String>, kotlin/Long, kotlin/Long, kotlin/Long, kotlin/Function5<kotlin/String, kotlin/String, kotlin/Long, io.github.alirezajavan.pulsekit.core/SensorPayload, io.github.alirezajavan.pulsekit.core/SyncStatus, #A1>): app.cash.sqldelight/Query<#A1> // io.github.alirezajavan.pulsekit.core.db/SensorEventLogQueries.queryEvents|queryEvents(kotlin.Boolean;kotlin.collections.Collection<kotlin.String>;kotlin.Long;kotlin.Long;kotlin.Long;kotlin.Function5<kotlin.String,kotlin.String,kotlin.Long,io.github.alirezajavan.pulsekit.core.SensorPayload,io.github.alirezajavan.pulsekit.core.SyncStatus,0:0>){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> recentEvents(kotlin/Boolean, kotlin.collections/Collection<kotlin/String>, kotlin/Long, kotlin/Function5<kotlin/String, kotlin/String, kotlin/Long, io.github.alirezajavan.pulsekit.core/SensorPayload, io.github.alirezajavan.pulsekit.core/SyncStatus, #A1>): app.cash.sqldelight/Query<#A1> // io.github.alirezajavan.pulsekit.core.db/SensorEventLogQueries.recentEvents|recentEvents(kotlin.Boolean;kotlin.collections.Collection<kotlin.String>;kotlin.Long;kotlin.Function5<kotlin.String,kotlin.String,kotlin.Long,io.github.alirezajavan.pulsekit.core.SensorPayload,io.github.alirezajavan.pulsekit.core.SyncStatus,0:0>){0§<kotlin.Any>}[0]
     final fun deleteAllEvents(): app.cash.sqldelight.db/QueryResult<kotlin/Long> // io.github.alirezajavan.pulsekit.core.db/SensorEventLogQueries.deleteAllEvents|deleteAllEvents(){}[0]
     final fun deleteEvents(kotlin.collections/Collection<kotlin/String>): app.cash.sqldelight.db/QueryResult<kotlin/Long> // io.github.alirezajavan.pulsekit.core.db/SensorEventLogQueries.deleteEvents|deleteEvents(kotlin.collections.Collection<kotlin.String>){}[0]
     final fun eventCount(): app.cash.sqldelight/Query<kotlin/Long> // io.github.alirezajavan.pulsekit.core.db/SensorEventLogQueries.eventCount|eventCount(){}[0]
@@ -301,7 +311,31 @@ final class io.github.alirezajavan.pulsekit.core.db/SensorEventLogQueries : app.
     final fun insertEvent(kotlin/String, kotlin/String, kotlin/Long, io.github.alirezajavan.pulsekit.core/SensorPayload, io.github.alirezajavan.pulsekit.core/SyncStatus): app.cash.sqldelight.db/QueryResult<kotlin/Long> // io.github.alirezajavan.pulsekit.core.db/SensorEventLogQueries.insertEvent|insertEvent(kotlin.String;kotlin.String;kotlin.Long;io.github.alirezajavan.pulsekit.core.SensorPayload;io.github.alirezajavan.pulsekit.core.SyncStatus){}[0]
     final fun pruneEventsOlderThan(kotlin/Long): app.cash.sqldelight.db/QueryResult<kotlin/Long> // io.github.alirezajavan.pulsekit.core.db/SensorEventLogQueries.pruneEventsOlderThan|pruneEventsOlderThan(kotlin.Long){}[0]
     final fun pruneOldEvents(kotlin/Long): app.cash.sqldelight.db/QueryResult<kotlin/Long> // io.github.alirezajavan.pulsekit.core.db/SensorEventLogQueries.pruneOldEvents|pruneOldEvents(kotlin.Long){}[0]
+    final fun queryEvents(kotlin/Boolean, kotlin.collections/Collection<kotlin/String>, kotlin/Long, kotlin/Long, kotlin/Long): app.cash.sqldelight/Query<io.github.alirezajavan.pulsekit.core.db/SensorEventLog> // io.github.alirezajavan.pulsekit.core.db/SensorEventLogQueries.queryEvents|queryEvents(kotlin.Boolean;kotlin.collections.Collection<kotlin.String>;kotlin.Long;kotlin.Long;kotlin.Long){}[0]
+    final fun recentEvents(kotlin/Boolean, kotlin.collections/Collection<kotlin/String>, kotlin/Long): app.cash.sqldelight/Query<io.github.alirezajavan.pulsekit.core.db/SensorEventLog> // io.github.alirezajavan.pulsekit.core.db/SensorEventLogQueries.recentEvents|recentEvents(kotlin.Boolean;kotlin.collections.Collection<kotlin.String>;kotlin.Long){}[0]
     final fun updateSyncStatus(io.github.alirezajavan.pulsekit.core/SyncStatus, kotlin.collections/Collection<kotlin/String>): app.cash.sqldelight.db/QueryResult<kotlin/Long> // io.github.alirezajavan.pulsekit.core.db/SensorEventLogQueries.updateSyncStatus|updateSyncStatus(io.github.alirezajavan.pulsekit.core.SyncStatus;kotlin.collections.Collection<kotlin.String>){}[0]
+}
+
+final class io.github.alirezajavan.pulsekit.core/EventQuery { // io.github.alirezajavan.pulsekit.core/EventQuery|null[0]
+    constructor <init>(kotlin.collections/Set<kotlin/String>? = ..., kotlin/Long = ..., kotlin/Long = ..., kotlin/Long = ...) // io.github.alirezajavan.pulsekit.core/EventQuery.<init>|<init>(kotlin.collections.Set<kotlin.String>?;kotlin.Long;kotlin.Long;kotlin.Long){}[0]
+
+    final val fromTimestamp // io.github.alirezajavan.pulsekit.core/EventQuery.fromTimestamp|{}fromTimestamp[0]
+        final fun <get-fromTimestamp>(): kotlin/Long // io.github.alirezajavan.pulsekit.core/EventQuery.fromTimestamp.<get-fromTimestamp>|<get-fromTimestamp>(){}[0]
+    final val limit // io.github.alirezajavan.pulsekit.core/EventQuery.limit|{}limit[0]
+        final fun <get-limit>(): kotlin/Long // io.github.alirezajavan.pulsekit.core/EventQuery.limit.<get-limit>|<get-limit>(){}[0]
+    final val toTimestamp // io.github.alirezajavan.pulsekit.core/EventQuery.toTimestamp|{}toTimestamp[0]
+        final fun <get-toTimestamp>(): kotlin/Long // io.github.alirezajavan.pulsekit.core/EventQuery.toTimestamp.<get-toTimestamp>|<get-toTimestamp>(){}[0]
+    final val types // io.github.alirezajavan.pulsekit.core/EventQuery.types|{}types[0]
+        final fun <get-types>(): kotlin.collections/Set<kotlin/String>? // io.github.alirezajavan.pulsekit.core/EventQuery.types.<get-types>|<get-types>(){}[0]
+
+    final fun component1(): kotlin.collections/Set<kotlin/String>? // io.github.alirezajavan.pulsekit.core/EventQuery.component1|component1(){}[0]
+    final fun component2(): kotlin/Long // io.github.alirezajavan.pulsekit.core/EventQuery.component2|component2(){}[0]
+    final fun component3(): kotlin/Long // io.github.alirezajavan.pulsekit.core/EventQuery.component3|component3(){}[0]
+    final fun component4(): kotlin/Long // io.github.alirezajavan.pulsekit.core/EventQuery.component4|component4(){}[0]
+    final fun copy(kotlin.collections/Set<kotlin/String>? = ..., kotlin/Long = ..., kotlin/Long = ..., kotlin/Long = ...): io.github.alirezajavan.pulsekit.core/EventQuery // io.github.alirezajavan.pulsekit.core/EventQuery.copy|copy(kotlin.collections.Set<kotlin.String>?;kotlin.Long;kotlin.Long;kotlin.Long){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.github.alirezajavan.pulsekit.core/EventQuery.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.github.alirezajavan.pulsekit.core/EventQuery.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.github.alirezajavan.pulsekit.core/EventQuery.toString|toString(){}[0]
 }
 
 final class io.github.alirezajavan.pulsekit.core/MotionSample { // io.github.alirezajavan.pulsekit.core/MotionSample|null[0]
@@ -351,10 +385,12 @@ final class io.github.alirezajavan.pulsekit.core/PulseKit { // io.github.alireza
 
     final fun dispose() // io.github.alirezajavan.pulsekit.core/PulseKit.dispose|dispose(){}[0]
     final fun observeEventCount(): kotlinx.coroutines.flow/Flow<kotlin/Long> // io.github.alirezajavan.pulsekit.core/PulseKit.observeEventCount|observeEventCount(){}[0]
+    final fun observeEvents(io.github.alirezajavan.pulsekit.core/EventQuery): kotlinx.coroutines.flow/Flow<kotlin.collections/List<io.github.alirezajavan.pulsekit.core.db/SensorEventLog>> // io.github.alirezajavan.pulsekit.core/PulseKit.observeEvents|observeEvents(io.github.alirezajavan.pulsekit.core.EventQuery){}[0]
     final fun recordEvent(io.github.alirezajavan.pulsekit.core/SensorPayload, kotlin/String) // io.github.alirezajavan.pulsekit.core/PulseKit.recordEvent|recordEvent(io.github.alirezajavan.pulsekit.core.SensorPayload;kotlin.String){}[0]
     final fun start() // io.github.alirezajavan.pulsekit.core/PulseKit.start|start(){}[0]
     final fun startSources(kotlin.collections/Set<kotlin/String>) // io.github.alirezajavan.pulsekit.core/PulseKit.startSources|startSources(kotlin.collections.Set<kotlin.String>){}[0]
     final suspend fun eraseAllData() // io.github.alirezajavan.pulsekit.core/PulseKit.eraseAllData|eraseAllData(){}[0]
+    final suspend fun queryEvents(io.github.alirezajavan.pulsekit.core/EventQuery): kotlin.collections/List<io.github.alirezajavan.pulsekit.core.db/SensorEventLog> // io.github.alirezajavan.pulsekit.core/PulseKit.queryEvents|queryEvents(io.github.alirezajavan.pulsekit.core.EventQuery){}[0]
     final suspend fun recordEvents(kotlin.collections/List<io.github.alirezajavan.pulsekit.core/SensorPayload>, kotlin/String) // io.github.alirezajavan.pulsekit.core/PulseKit.recordEvents|recordEvents(kotlin.collections.List<io.github.alirezajavan.pulsekit.core.SensorPayload>;kotlin.String){}[0]
     final suspend fun stop() // io.github.alirezajavan.pulsekit.core/PulseKit.stop|stop(){}[0]
     final suspend fun stopSources(kotlin.collections/Set<kotlin/String>) // io.github.alirezajavan.pulsekit.core/PulseKit.stopSources|stopSources(kotlin.collections.Set<kotlin.String>){}[0]
@@ -364,10 +400,13 @@ final class io.github.alirezajavan.pulsekit.core/PulseKit { // io.github.alireza
 
         final fun addDataSource(io.github.alirezajavan.pulsekit.core/DataSource, io.github.alirezajavan.pulsekit.core/CollectionMode = ...): io.github.alirezajavan.pulsekit.core/PulseKit.Builder // io.github.alirezajavan.pulsekit.core/PulseKit.Builder.addDataSource|addDataSource(io.github.alirezajavan.pulsekit.core.DataSource;io.github.alirezajavan.pulsekit.core.CollectionMode){}[0]
         final fun build(): io.github.alirezajavan.pulsekit.core/PulseKit // io.github.alirezajavan.pulsekit.core/PulseKit.Builder.build|build(){}[0]
+        final fun collectionScope(kotlinx.coroutines/CoroutineScope): io.github.alirezajavan.pulsekit.core/PulseKit.Builder // io.github.alirezajavan.pulsekit.core/PulseKit.Builder.collectionScope|collectionScope(kotlinx.coroutines.CoroutineScope){}[0]
         final fun config(io.github.alirezajavan.pulsekit.core/PulseKitConfig): io.github.alirezajavan.pulsekit.core/PulseKit.Builder // io.github.alirezajavan.pulsekit.core/PulseKit.Builder.config|config(io.github.alirezajavan.pulsekit.core.PulseKitConfig){}[0]
         final fun dataSourcesSnapshot(): kotlin.collections/List<io.github.alirezajavan.pulsekit.core/DataSource> // io.github.alirezajavan.pulsekit.core/PulseKit.Builder.dataSourcesSnapshot|dataSourcesSnapshot(){}[0]
+        final fun idProvider(io.github.alirezajavan.pulsekit.core/IdProvider): io.github.alirezajavan.pulsekit.core/PulseKit.Builder // io.github.alirezajavan.pulsekit.core/PulseKit.Builder.idProvider|idProvider(io.github.alirezajavan.pulsekit.core.IdProvider){}[0]
         final fun logger(io.github.alirezajavan.pulsekit.core/PulseKitLogger): io.github.alirezajavan.pulsekit.core/PulseKit.Builder // io.github.alirezajavan.pulsekit.core/PulseKit.Builder.logger|logger(io.github.alirezajavan.pulsekit.core.PulseKitLogger){}[0]
         final fun loggerSnapshot(): io.github.alirezajavan.pulsekit.core/PulseKitLogger // io.github.alirezajavan.pulsekit.core/PulseKit.Builder.loggerSnapshot|loggerSnapshot(){}[0]
+        final fun timeProvider(io.github.alirezajavan.pulsekit.core/TimeProvider): io.github.alirezajavan.pulsekit.core/PulseKit.Builder // io.github.alirezajavan.pulsekit.core/PulseKit.Builder.timeProvider|timeProvider(io.github.alirezajavan.pulsekit.core.TimeProvider){}[0]
     }
 
     final object Companion { // io.github.alirezajavan.pulsekit.core/PulseKit.Companion|null[0]
@@ -412,6 +451,14 @@ final object io.github.alirezajavan.pulsekit.core/NoOpPulseKitLogger : io.github
 final object io.github.alirezajavan.pulsekit.core/SensorPayloadMapper { // io.github.alirezajavan.pulsekit.core/SensorPayloadMapper|null[0]
     final fun fromJson(kotlin/String): io.github.alirezajavan.pulsekit.core/SensorPayload // io.github.alirezajavan.pulsekit.core/SensorPayloadMapper.fromJson|fromJson(kotlin.String){}[0]
     final fun toJson(io.github.alirezajavan.pulsekit.core/SensorPayload): kotlin/String // io.github.alirezajavan.pulsekit.core/SensorPayloadMapper.toJson|toJson(io.github.alirezajavan.pulsekit.core.SensorPayload){}[0]
+}
+
+final object io.github.alirezajavan.pulsekit.core/SystemIdProvider : io.github.alirezajavan.pulsekit.core/IdProvider { // io.github.alirezajavan.pulsekit.core/SystemIdProvider|null[0]
+    final fun nextId(): kotlin/String // io.github.alirezajavan.pulsekit.core/SystemIdProvider.nextId|nextId(){}[0]
+}
+
+final object io.github.alirezajavan.pulsekit.core/SystemTimeProvider : io.github.alirezajavan.pulsekit.core/TimeProvider { // io.github.alirezajavan.pulsekit.core/SystemTimeProvider|null[0]
+    final fun nowMillis(): kotlin/Long // io.github.alirezajavan.pulsekit.core/SystemTimeProvider.nowMillis|nowMillis(){}[0]
 }
 
 final val io.github.alirezajavan.pulsekit.core.permission/backgroundSessionPermissions // io.github.alirezajavan.pulsekit.core.permission/backgroundSessionPermissions|{}backgroundSessionPermissions[0]

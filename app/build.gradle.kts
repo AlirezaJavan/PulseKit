@@ -34,6 +34,7 @@ dependencies {
     implementation(project(":pulsekit-bluetooth"))
     implementation(project(":pulsekit-sync"))
     implementation(project(":pulsekit-ui"))
+    implementation(project(":pulsekit-export"))
     implementation(libs.ktor.client.okhttp)
 
     implementation(libs.androidx.core.ktx)
@@ -48,6 +49,9 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     testImplementation(libs.junit)
+    testImplementation(kotlin("test"))
+    testImplementation(project(":pulsekit-testing"))
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

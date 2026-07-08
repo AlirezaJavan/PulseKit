@@ -29,6 +29,7 @@ import io.github.alirezajavan.pulsekit.core.PulseKit
 import io.github.alirezajavan.pulsekit.core.SensorPayload
 import io.github.alirezajavan.pulsekit.core.MotionSample
 import io.github.alirezajavan.pulsekit.demo.BluetoothScreen
+import io.github.alirezajavan.pulsekit.demo.HistoryScreen
 import io.github.alirezajavan.pulsekit.demo.HomeScreen
 import io.github.alirezajavan.pulsekit.demo.PulseKitDestination
 import io.github.alirezajavan.pulsekit.demo.SensorsScreen
@@ -197,6 +198,9 @@ private fun PulseKitApp(
                     onRequireUnmeteredNetworkChange = { app.setRequireUnmeteredNetwork(it) },
                     networkMonitor = app.networkMonitor,
                 )
+            }
+            composable(PulseKitDestination.History.route) {
+                HistoryScreen(pulseKit = pulseKit)
             }
             composable(PulseKitDestination.Settings.route) {
                 val syncConfig by app.syncConfig.collectAsState()

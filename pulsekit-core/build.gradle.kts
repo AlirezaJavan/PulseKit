@@ -27,6 +27,7 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
+            implementation(project(":pulsekit-testing"))
         }
         androidHostTest.dependencies {
             // Robolectric gives SensorEventStore/TrackingEngine tests a real (in-memory)

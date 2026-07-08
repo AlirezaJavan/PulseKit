@@ -1,0 +1,86 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <PulseKit:pulsekit-testing>
+final class io.github.alirezajavan.pulsekit.testing/FakeDataSource : io.github.alirezajavan.pulsekit.core/DataSource { // io.github.alirezajavan.pulsekit.testing/FakeDataSource|null[0]
+    constructor <init>(kotlin/String = ..., kotlin/Boolean = ..., kotlin.collections/List<io.github.alirezajavan.pulsekit.core.permission/Permission> = ...) // io.github.alirezajavan.pulsekit.testing/FakeDataSource.<init>|<init>(kotlin.String;kotlin.Boolean;kotlin.collections.List<io.github.alirezajavan.pulsekit.core.permission.Permission>){}[0]
+
+    final val id // io.github.alirezajavan.pulsekit.testing/FakeDataSource.id|{}id[0]
+        final fun <get-id>(): kotlin/String // io.github.alirezajavan.pulsekit.testing/FakeDataSource.id.<get-id>|<get-id>(){}[0]
+    final val isSupported // io.github.alirezajavan.pulsekit.testing/FakeDataSource.isSupported|{}isSupported[0]
+        final fun <get-isSupported>(): kotlin/Boolean // io.github.alirezajavan.pulsekit.testing/FakeDataSource.isSupported.<get-isSupported>|<get-isSupported>(){}[0]
+    final val requiredPermissions // io.github.alirezajavan.pulsekit.testing/FakeDataSource.requiredPermissions|{}requiredPermissions[0]
+        final fun <get-requiredPermissions>(): kotlin.collections/List<io.github.alirezajavan.pulsekit.core.permission/Permission> // io.github.alirezajavan.pulsekit.testing/FakeDataSource.requiredPermissions.<get-requiredPermissions>|<get-requiredPermissions>(){}[0]
+
+    final var startResult // io.github.alirezajavan.pulsekit.testing/FakeDataSource.startResult|{}startResult[0]
+        final fun <get-startResult>(): kotlin/Boolean // io.github.alirezajavan.pulsekit.testing/FakeDataSource.startResult.<get-startResult>|<get-startResult>(){}[0]
+        final fun <set-startResult>(kotlin/Boolean) // io.github.alirezajavan.pulsekit.testing/FakeDataSource.startResult.<set-startResult>|<set-startResult>(kotlin.Boolean){}[0]
+
+    final fun events(): kotlinx.coroutines.flow/Flow<io.github.alirezajavan.pulsekit.core/SensorPayload> // io.github.alirezajavan.pulsekit.testing/FakeDataSource.events|events(){}[0]
+    final fun getStartCount(): kotlin/Int // io.github.alirezajavan.pulsekit.testing/FakeDataSource.getStartCount|getStartCount(){}[0]
+    final fun getStopCount(): kotlin/Int // io.github.alirezajavan.pulsekit.testing/FakeDataSource.getStopCount|getStopCount(){}[0]
+    final fun isRunning(): kotlin/Boolean // io.github.alirezajavan.pulsekit.testing/FakeDataSource.isRunning|isRunning(){}[0]
+    final suspend fun emit(io.github.alirezajavan.pulsekit.core/SensorPayload) // io.github.alirezajavan.pulsekit.testing/FakeDataSource.emit|emit(io.github.alirezajavan.pulsekit.core.SensorPayload){}[0]
+    final suspend fun start(): kotlin/Boolean // io.github.alirezajavan.pulsekit.testing/FakeDataSource.start|start(){}[0]
+    final suspend fun stop() // io.github.alirezajavan.pulsekit.testing/FakeDataSource.stop|stop(){}[0]
+}
+
+final class io.github.alirezajavan.pulsekit.testing/MutableTimeProvider : io.github.alirezajavan.pulsekit.core/TimeProvider { // io.github.alirezajavan.pulsekit.testing/MutableTimeProvider|null[0]
+    constructor <init>(kotlin/Long = ...) // io.github.alirezajavan.pulsekit.testing/MutableTimeProvider.<init>|<init>(kotlin.Long){}[0]
+
+    final fun advanceBy(kotlin/Long) // io.github.alirezajavan.pulsekit.testing/MutableTimeProvider.advanceBy|advanceBy(kotlin.Long){}[0]
+    final fun nowMillis(): kotlin/Long // io.github.alirezajavan.pulsekit.testing/MutableTimeProvider.nowMillis|nowMillis(){}[0]
+    final fun setTime(kotlin/Long) // io.github.alirezajavan.pulsekit.testing/MutableTimeProvider.setTime|setTime(kotlin.Long){}[0]
+}
+
+final class io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger : io.github.alirezajavan.pulsekit.core/PulseKitLogger { // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger|null[0]
+    constructor <init>() // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.<init>|<init>(){}[0]
+
+    final val events // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.events|{}events[0]
+        final fun <get-events>(): kotlin.collections/List<io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent> // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.events.<get-events>|<get-events>(){}[0]
+
+    final fun clear() // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.clear|clear(){}[0]
+    final fun debug(kotlin/String, kotlin/String) // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.debug|debug(kotlin.String;kotlin.String){}[0]
+    final fun error(kotlin/String, kotlin/String, kotlin/Throwable?) // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.error|error(kotlin.String;kotlin.String;kotlin.Throwable?){}[0]
+    final fun warn(kotlin/String, kotlin/String, kotlin/Throwable?) // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.warn|warn(kotlin.String;kotlin.String;kotlin.Throwable?){}[0]
+
+    final enum class Level : kotlin/Enum<io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.Level> { // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.Level|null[0]
+        enum entry DEBUG // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.Level.DEBUG|null[0]
+        enum entry ERROR // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.Level.ERROR|null[0]
+        enum entry WARN // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.Level.WARN|null[0]
+
+        final val entries // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.Level.entries|#static{}entries[0]
+            final fun <get-entries>(): kotlin.enums/EnumEntries<io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.Level> // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.Level.entries.<get-entries>|<get-entries>#static(){}[0]
+
+        final fun valueOf(kotlin/String): io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.Level // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.Level.valueOf|valueOf#static(kotlin.String){}[0]
+        final fun values(): kotlin/Array<io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.Level> // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.Level.values|values#static(){}[0]
+    }
+
+    final class LogEvent { // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent|null[0]
+        constructor <init>(io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.Level, kotlin/String, kotlin/String, kotlin/Throwable? = ...) // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent.<init>|<init>(io.github.alirezajavan.pulsekit.testing.RecordingPulseKitLogger.Level;kotlin.String;kotlin.String;kotlin.Throwable?){}[0]
+
+        final val level // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent.level|{}level[0]
+            final fun <get-level>(): io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.Level // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent.level.<get-level>|<get-level>(){}[0]
+        final val message // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent.message|{}message[0]
+            final fun <get-message>(): kotlin/String // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent.message.<get-message>|<get-message>(){}[0]
+        final val tag // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent.tag|{}tag[0]
+            final fun <get-tag>(): kotlin/String // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent.tag.<get-tag>|<get-tag>(){}[0]
+        final val throwable // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent.throwable|{}throwable[0]
+            final fun <get-throwable>(): kotlin/Throwable? // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent.throwable.<get-throwable>|<get-throwable>(){}[0]
+
+        final fun component1(): io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.Level // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent.component1|component1(){}[0]
+        final fun component2(): kotlin/String // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent.component2|component2(){}[0]
+        final fun component3(): kotlin/String // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent.component3|component3(){}[0]
+        final fun component4(): kotlin/Throwable? // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent.component4|component4(){}[0]
+        final fun copy(io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.Level = ..., kotlin/String = ..., kotlin/String = ..., kotlin/Throwable? = ...): io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent.copy|copy(io.github.alirezajavan.pulsekit.testing.RecordingPulseKitLogger.Level;kotlin.String;kotlin.String;kotlin.Throwable?){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // io.github.alirezajavan.pulsekit.testing/RecordingPulseKitLogger.LogEvent.toString|toString(){}[0]
+    }
+}
+
+final fun io.github.alirezajavan.pulsekit.testing/inMemoryPulseKitDatabase(): io.github.alirezajavan.pulsekit.core.db/PulseKitDatabase // io.github.alirezajavan.pulsekit.testing/inMemoryPulseKitDatabase|inMemoryPulseKitDatabase(){}[0]

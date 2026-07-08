@@ -3,11 +3,13 @@ package io.github.alirezajavan.pulsekit.demo
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.CloudSync
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Bluetooth
 import androidx.compose.material.icons.outlined.CloudSync
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Sensors
 import androidx.compose.material.icons.outlined.Settings
@@ -47,6 +49,12 @@ enum class PulseKitDestination(
         label = "Sync",
         selectedIcon = Icons.Filled.CloudSync,
         unselectedIcon = Icons.Outlined.CloudSync,
+    ),
+    History(
+        route = "history",
+        label = "History",
+        selectedIcon = Icons.Filled.History,
+        unselectedIcon = Icons.Outlined.History,
     ),
     Settings(
         route = "settings",
