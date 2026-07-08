@@ -6,10 +6,10 @@ import io.github.alirezajavan.pulsekit.core.db.SensorEventLog
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ExporterTest {
-
     private val mixedEvents = listOf(
         SensorEventLog(
             id = "1",
@@ -64,7 +64,7 @@ class ExporterTest {
 
         val result = output.toString()
         val lines = result.trim().split("\n")
-        assertTrue(lines.size == 3)
+        assertEquals(3, lines.size)
         assertTrue(lines[0].contains("\"type\":\"location\""))
         assertTrue(lines[1].contains("\"type\":\"step\""))
         assertTrue(lines[2].contains("\"type\":\"ble\""))

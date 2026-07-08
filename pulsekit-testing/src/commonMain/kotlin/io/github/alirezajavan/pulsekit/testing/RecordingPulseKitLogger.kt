@@ -6,7 +6,12 @@ import io.github.alirezajavan.pulsekit.core.PulseKitLogger
  * A [PulseKitLogger] that captures all log events in memory for assertion in tests.
  */
 class RecordingPulseKitLogger : PulseKitLogger {
-    data class LogEvent(val level: Level, val tag: String, val message: String, val throwable: Throwable? = null)
+    data class LogEvent(
+        val level: Level,
+        val tag: String,
+        val message: String,
+        val throwable: Throwable? = null,
+    )
 
     enum class Level { DEBUG, WARN, ERROR }
 

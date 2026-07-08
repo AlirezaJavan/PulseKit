@@ -12,7 +12,7 @@
 
 set -e
 
-echo "pre-commit: running apiCheck + unit tests..."
-./gradlew apiCheck testAndroidHostTest --quiet
+echo "pre-commit: running ktlintCheck + apiCheck + unit tests..."
+./gradlew ktlintCheck apiCheck testAndroidHostTest --quiet
 
 echo "pre-commit: passed."

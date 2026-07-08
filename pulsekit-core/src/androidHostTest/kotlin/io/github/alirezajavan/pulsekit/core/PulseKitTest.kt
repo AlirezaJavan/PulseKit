@@ -23,7 +23,6 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 class PulseKitTest {
-
     private fun TestScope.newPulseKit(vararg sources: Pair<DataSource, CollectionMode>): PulseKit {
         val builder = PulseKit.builder(inMemoryPulseKitDatabase())
             .collectionScope(backgroundScope)

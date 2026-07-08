@@ -20,7 +20,6 @@ import kotlin.test.assertEquals
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class PulseKitShowcaseTest {
-
     @Test
     fun `test pulsekit integration with fake data and virtual time`() = runTest {
         // 1. Setup testing infrastructure

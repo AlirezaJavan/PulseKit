@@ -60,10 +60,11 @@ internal class TrackingEngine(
         limit = query.limit,
     )
 
-    fun observeRecentEvents(query: EventQuery): Flow<List<SensorEventLog>> = store.observeRecentEvents(
-        types = query.types,
-        limit = query.limit,
-    )
+    fun observeRecentEvents(query: EventQuery): Flow<List<SensorEventLog>> =
+        store.observeRecentEvents(
+            types = query.types,
+            limit = query.limit,
+        )
 
     /** Enqueues an event for batched persistence. Never suspends; safe to call from sensor callbacks. */
     fun logSensorEvent(payload: SensorPayload, sensorType: String) {

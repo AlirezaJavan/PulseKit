@@ -8,7 +8,8 @@ import kotlin.time.Instant
 object GpxExporter {
     suspend fun export(events: Flow<SensorEventLog>, output: Appendable) {
         output.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
-        output.append("<gpx version=\"1.1\" creator=\"PulseKit\" xmlns=\"http://www.topografix.com/GPX/1/1\">\n")
+        output.append("<gpx version=\"1.1\" creator=\"PulseKit\" ")
+        output.append("xmlns=\"http://www.topografix.com/GPX/1/1\">\n")
         output.append("  <trk>\n")
         output.append("    <trkseg>\n")
 
@@ -16,7 +17,8 @@ object GpxExporter {
             val payload = event.payload
             if (payload is SensorPayload.Location) {
                 val time = Instant.fromEpochMilliseconds(event.timestamp).toString()
-                output.append("      <trkpt lat=\"${payload.latitude}\" lon=\"${payload.longitude}\">\n")
+                output.append("      <trkpt lat=\"${payload.latitude}\" ")
+                output.append("lon=\"${payload.longitude}\">\n")
                 output.append("        <time>$time</time>\n")
                 output.append("        <speed>${payload.speed}</speed>\n")
                 output.append("      </trkpt>\n")

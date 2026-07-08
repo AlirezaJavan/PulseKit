@@ -13,14 +13,16 @@ object CsvExporter {
             val type = event.sensorType
             when (val payload = event.payload) {
                 is SensorPayload.Location -> {
-                    output.append("$timestamp,$type,${payload.latitude},${payload.longitude},${payload.accuracy},${payload.speed},,,,\n")
+                    output.append("$timestamp,$type,${payload.latitude},${payload.longitude},")
+                    output.append("${payload.accuracy},${payload.speed},,,,\n")
                 }
                 is SensorPayload.StepCount -> {
                     output.append("$timestamp,$type,,,,,${payload.steps},,,\n")
                 }
                 is SensorPayload.MotionChunk -> {
                     payload.samples.forEach { sample ->
-                        output.append("${sample.timestamp},$type,,,,,,${sample.x},${sample.y},${sample.z}\n")
+                        output.append("${sample.timestamp},$type,,,,,,")
+                        output.append("${sample.x},${sample.y},${sample.z}\n")
                     }
                 }
                 is SensorPayload.BluetoothScan -> {

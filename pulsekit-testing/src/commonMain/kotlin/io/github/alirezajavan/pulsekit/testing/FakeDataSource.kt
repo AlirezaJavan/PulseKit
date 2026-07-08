@@ -42,6 +42,8 @@ class FakeDataSource(
     }
 
     fun getStartCount() = startCount
+
     fun getStopCount() = stopCount
+
     fun isRunning() = isStarted
 }

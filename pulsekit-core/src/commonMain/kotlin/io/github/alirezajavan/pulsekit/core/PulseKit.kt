@@ -162,14 +162,16 @@ class PulseKit private constructor(
      * Executes a one-off read of stored events matching [query].
      * Always requires a limit to prevent excessive memory usage.
      */
-    suspend fun queryEvents(query: EventQuery): List<SensorEventLog> = withContext(Dispatchers.Default) {
-        engine.queryEvents(query)
-    }
+    suspend fun queryEvents(query: EventQuery): List<SensorEventLog> =
+        withContext(Dispatchers.Default) {
+            engine.queryEvents(query)
+        }
 
     /**
      * Returns a reactive flow of the most recent events matching [query].
      */
-    fun observeEvents(query: EventQuery): Flow<List<SensorEventLog>> = engine.observeRecentEvents(query)
+    fun observeEvents(query: EventQuery): Flow<List<SensorEventLog>> =
+        engine.observeRecentEvents(query)
 
     /** Records a single one-off event outside the attached data sources. */
     fun recordEvent(payload: SensorPayload, type: String) {
