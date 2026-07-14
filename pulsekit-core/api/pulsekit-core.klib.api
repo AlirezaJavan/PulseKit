@@ -321,7 +321,7 @@ final class io.github.alirezajavan.pulsekit.core.db/SensorEventLogQueries : app.
 }
 
 final class io.github.alirezajavan.pulsekit.core.processor/LocationPrecisionProcessor : io.github.alirezajavan.pulsekit.core.processor/EventProcessor { // io.github.alirezajavan.pulsekit.core.processor/LocationPrecisionProcessor|null[0]
-    constructor <init>(kotlin/Int) // io.github.alirezajavan.pulsekit.core.processor/LocationPrecisionProcessor.<init>|<init>(kotlin.Int){}[0]
+    constructor <init>(kotlin/Function0<kotlin/Int?>) // io.github.alirezajavan.pulsekit.core.processor/LocationPrecisionProcessor.<init>|<init>(kotlin.Function0<kotlin.Int?>){}[0]
 
     final fun process(io.github.alirezajavan.pulsekit.core.db/SensorEventLog): io.github.alirezajavan.pulsekit.core.db/SensorEventLog? // io.github.alirezajavan.pulsekit.core.processor/LocationPrecisionProcessor.process|process(io.github.alirezajavan.pulsekit.core.db.SensorEventLog){}[0]
 }

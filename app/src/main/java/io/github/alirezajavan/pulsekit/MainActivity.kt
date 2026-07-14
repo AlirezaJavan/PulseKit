@@ -204,12 +204,15 @@ private fun PulseKitApp(
             }
             composable(PulseKitDestination.Settings.route) {
                 val syncConfig by app.syncConfig.collectAsState()
+                val coarseEnabled by app.coarseLocationEnabled.collectAsState()
                 SettingsScreen(
                     permissionController = permissionController,
                     locationConfig = app.locationConfig,
                     motionConfig = app.motionConfig,
                     bluetoothConfig = app.bluetoothConfig,
                     syncConfig = syncConfig,
+                    coarseLocationEnabled = coarseEnabled,
+                    onToggleCoarseLocation = { app.setCoarseLocationEnabled(it) },
                     onEraseAllData = {
                         coroutineScope.launch {
                             pulseKit.eraseAllData()

@@ -9,14 +9,17 @@ import kotlin.math.roundToLong
  * Coarse-grains [SensorPayload.Location] coordinates to a fixed number of decimal places.
  *
  * Useful for enhancing user privacy by ensuring exact house-level locations are never
- * stored.
+ * stored. Pass null to [decimalPlacesProvider] to disable rounding.
  */
-class LocationPrecisionProcessor(private val decimalPlaces: Int) : EventProcessor {
-    private val factor = 10.0.pow(decimalPlaces)
-
+class LocationPrecisionProcessor(
+    private val decimalPlacesProvider: () -> Int?,
+) : EventProcessor {
     override fun process(event: SensorEventLog): SensorEventLog? {
         val payload = event.payload
         if (payload !is SensorPayload.Location) return event
+
+        val decimalPlaces = decimalPlacesProvider() ?: return event
+        val factor = 10.0.pow(decimalPlaces)
 
         val roundedPayload = payload.copy(
             latitude = (payload.latitude * factor).roundToLong() / factor,

@@ -84,6 +84,8 @@ tracking, you only pull in `pulsekit-core` + `pulsekit-location`.
   (`PulseKitConfig.maxEventAgeMillis`) so an offline device can't grow the database unbounded.
 - `PulseKit.eraseAllData()` for right-to-erasure (GDPR/CCPA) requests — unconditionally removes
   every stored row, regardless of sync status, distinct from routine pruning.
+- **Event Processing Pipeline**: transform, enrich, or drop events (PII redaction, downsampling)
+  before they reach storage using an ordered chain of `EventProcessor`s. Fail-open by design.
 - A single cross-platform `PermissionController` that encodes the OS-mandated staged permission
   flows for you: Android's foreground-then-background location sequence (10+ requires this as two
   separate calls) and iOS's when-in-use-then-always progression.
@@ -281,7 +283,27 @@ syncEngine.observeState().collect { state ->
 }
 ```
 
-### 6. Read back and export collected events
+### 6. Transform and filter events with `EventProcessor`
+
+Interceptors run on the ingestion loop just before events are persisted to storage. You can
+register multiple processors to form a pipeline for privacy redaction, downsampling, or enrichment:
+
+```kotlin
+val pulseKit = PulseKit.builder(database)
+    .addDataSource(LocationDataSource(context))
+    .addDataSource(MotionDataSource(context))
+    // Coarse-grain GPS to 3 decimal places (approx 110m) for privacy:
+    .addEventProcessor(LocationPrecisionProcessor(decimalPlaces = 3))
+    // Drop 9 out of 10 accelerometer samples to reduce storage volume:
+    .addEventProcessor(SamplingProcessor(sensorType = "motion", keepEveryNth = 10))
+    // Or add your own custom filter:
+    .addEventProcessor { event ->
+        if (shouldDrop(event)) null else event.copy(sensorType = "enriched_${event.sensorType}")
+    }
+    .build()
+```
+
+### 7. Read back and export collected events
 
 `PulseKit` exposes a read-only query API alongside the sync claim path — reading never mutates
 `syncStatus`, so it's safe to call whether or not anything is currently collecting or syncing:
@@ -314,7 +336,7 @@ Mixed-type streams are handled gracefully: `GpxExporter`/`CsvExporter` silently 
 they don't understand instead of throwing, and an empty result set still produces a well-formed
 (if empty) document. See `HistoryScreen.kt` in `app/` for the full share-as-file flow.
 
-### 7. Test your integration with `pulsekit-testing`
+### 8. Test your integration with `pulsekit-testing`
 
 `pulsekit-testing` ships fakes for the pieces of `PulseKit` a test needs to control, so your app's
 tests can drive real `PulseKit` orchestration deterministically without Robolectric:
@@ -340,7 +362,7 @@ timeProvider.advanceBy(5_000)
 
 See `PulseKitShowcaseTest` under `app/src/test/` for the pattern end-to-end.
 
-### 8. Adding a custom data source
+### 9. Adding a custom data source
 
 `pulsekit-location`, `pulsekit-motion`, and `pulsekit-bluetooth` are reference implementations —
 `pulsekit-core` has no knowledge of any of them. Anything that can produce a stream of values on a

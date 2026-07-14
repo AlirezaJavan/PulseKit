@@ -102,7 +102,7 @@ class EventProcessorTest {
 
     @Test
     fun locationPrecisionProcessorCorrectlyRoundsCoordinates() = runTest {
-        val p = LocationPrecisionProcessor(decimalPlaces = 2)
+        val p = LocationPrecisionProcessor(decimalPlacesProvider = { 2 })
         val engine = newEngine(listOf(p), this)
         engine.start()
 
@@ -116,6 +116,27 @@ class EventProcessorTest {
         val location = claimed.first().payload as SensorPayload.Location
         assertEquals(12.35, location.latitude)
         assertEquals(98.77, location.longitude)
+        engine.stop()
+    }
+
+    @Test
+    fun locationPrecisionProcessorDoesNotRoundWhenDisabled() = runTest {
+        val p = LocationPrecisionProcessor(decimalPlacesProvider = { null })
+        val engine = newEngine(listOf(p), this)
+        engine.start()
+
+        val lat = 12.34567
+        val lng = 98.76543
+        engine.logSensorEvent(
+            SensorPayload.Location(lat, lng, 5f, 0f),
+            "location",
+        )
+        runCurrent()
+
+        val claimed = engine.claimPendingBatch(10)
+        val location = claimed.first().payload as SensorPayload.Location
+        assertEquals(lat, location.latitude)
+        assertEquals(lng, location.longitude)
         engine.stop()
     }
 }

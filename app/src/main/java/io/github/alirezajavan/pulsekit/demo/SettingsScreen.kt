@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.AlertDialog
@@ -23,6 +24,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -56,6 +58,8 @@ fun SettingsScreen(
     motionConfig: MotionConfig,
     bluetoothConfig: BluetoothConfig,
     syncConfig: SyncConfig,
+    coarseLocationEnabled: Boolean,
+    onToggleCoarseLocation: (Boolean) -> Unit,
     onEraseAllData: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -136,6 +140,35 @@ fun SettingsScreen(
                     "Backoff range",
                     "${syncConfig.initialBackoffMillis / 1000}s – ${syncConfig.maxBackoffMillis / 1000}s",
                 )
+            }
+        }
+
+        item { SectionLabel("Privacy") }
+        item {
+            DemoCard {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    IconBadge(icon = Icons.Filled.Security, tone = Tone.NEUTRAL)
+                    Spacer(Modifier.width(14.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            "Coarse location",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Medium,
+                        )
+                        Text(
+                            "Rounds coordinates to 3 decimal places (approx. 110m) before storage using LocationPrecisionProcessor.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Switch(
+                        checked = coarseLocationEnabled,
+                        onCheckedChange = onToggleCoarseLocation,
+                    )
+                }
             }
         }
 
