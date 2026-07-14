@@ -45,6 +45,10 @@ final enum class io.github.alirezajavan.pulsekit.core/SyncStatus : kotlin/Enum<i
     final fun values(): kotlin/Array<io.github.alirezajavan.pulsekit.core/SyncStatus> // io.github.alirezajavan.pulsekit.core/SyncStatus.values|values#static(){}[0]
 }
 
+abstract fun interface io.github.alirezajavan.pulsekit.core.processor/EventProcessor { // io.github.alirezajavan.pulsekit.core.processor/EventProcessor|null[0]
+    abstract fun process(io.github.alirezajavan.pulsekit.core.db/SensorEventLog): io.github.alirezajavan.pulsekit.core.db/SensorEventLog? // io.github.alirezajavan.pulsekit.core.processor/EventProcessor.process|process(io.github.alirezajavan.pulsekit.core.db.SensorEventLog){}[0]
+}
+
 abstract fun interface io.github.alirezajavan.pulsekit.core/IdProvider { // io.github.alirezajavan.pulsekit.core/IdProvider|null[0]
     abstract fun nextId(): kotlin/String // io.github.alirezajavan.pulsekit.core/IdProvider.nextId|nextId(){}[0]
 }
@@ -316,6 +320,18 @@ final class io.github.alirezajavan.pulsekit.core.db/SensorEventLogQueries : app.
     final fun updateSyncStatus(io.github.alirezajavan.pulsekit.core/SyncStatus, kotlin.collections/Collection<kotlin/String>): app.cash.sqldelight.db/QueryResult<kotlin/Long> // io.github.alirezajavan.pulsekit.core.db/SensorEventLogQueries.updateSyncStatus|updateSyncStatus(io.github.alirezajavan.pulsekit.core.SyncStatus;kotlin.collections.Collection<kotlin.String>){}[0]
 }
 
+final class io.github.alirezajavan.pulsekit.core.processor/LocationPrecisionProcessor : io.github.alirezajavan.pulsekit.core.processor/EventProcessor { // io.github.alirezajavan.pulsekit.core.processor/LocationPrecisionProcessor|null[0]
+    constructor <init>(kotlin/Int) // io.github.alirezajavan.pulsekit.core.processor/LocationPrecisionProcessor.<init>|<init>(kotlin.Int){}[0]
+
+    final fun process(io.github.alirezajavan.pulsekit.core.db/SensorEventLog): io.github.alirezajavan.pulsekit.core.db/SensorEventLog? // io.github.alirezajavan.pulsekit.core.processor/LocationPrecisionProcessor.process|process(io.github.alirezajavan.pulsekit.core.db.SensorEventLog){}[0]
+}
+
+final class io.github.alirezajavan.pulsekit.core.processor/SamplingProcessor : io.github.alirezajavan.pulsekit.core.processor/EventProcessor { // io.github.alirezajavan.pulsekit.core.processor/SamplingProcessor|null[0]
+    constructor <init>(kotlin/String, kotlin/Int) // io.github.alirezajavan.pulsekit.core.processor/SamplingProcessor.<init>|<init>(kotlin.String;kotlin.Int){}[0]
+
+    final fun process(io.github.alirezajavan.pulsekit.core.db/SensorEventLog): io.github.alirezajavan.pulsekit.core.db/SensorEventLog? // io.github.alirezajavan.pulsekit.core.processor/SamplingProcessor.process|process(io.github.alirezajavan.pulsekit.core.db.SensorEventLog){}[0]
+}
+
 final class io.github.alirezajavan.pulsekit.core/EventQuery { // io.github.alirezajavan.pulsekit.core/EventQuery|null[0]
     constructor <init>(kotlin.collections/Set<kotlin/String>? = ..., kotlin/Long = ..., kotlin/Long = ..., kotlin/Long = ...) // io.github.alirezajavan.pulsekit.core/EventQuery.<init>|<init>(kotlin.collections.Set<kotlin.String>?;kotlin.Long;kotlin.Long;kotlin.Long){}[0]
 
@@ -399,6 +415,7 @@ final class io.github.alirezajavan.pulsekit.core/PulseKit { // io.github.alireza
         constructor <init>(io.github.alirezajavan.pulsekit.core.db/PulseKitDatabase) // io.github.alirezajavan.pulsekit.core/PulseKit.Builder.<init>|<init>(io.github.alirezajavan.pulsekit.core.db.PulseKitDatabase){}[0]
 
         final fun addDataSource(io.github.alirezajavan.pulsekit.core/DataSource, io.github.alirezajavan.pulsekit.core/CollectionMode = ...): io.github.alirezajavan.pulsekit.core/PulseKit.Builder // io.github.alirezajavan.pulsekit.core/PulseKit.Builder.addDataSource|addDataSource(io.github.alirezajavan.pulsekit.core.DataSource;io.github.alirezajavan.pulsekit.core.CollectionMode){}[0]
+        final fun addEventProcessor(io.github.alirezajavan.pulsekit.core.processor/EventProcessor): io.github.alirezajavan.pulsekit.core/PulseKit.Builder // io.github.alirezajavan.pulsekit.core/PulseKit.Builder.addEventProcessor|addEventProcessor(io.github.alirezajavan.pulsekit.core.processor.EventProcessor){}[0]
         final fun build(): io.github.alirezajavan.pulsekit.core/PulseKit // io.github.alirezajavan.pulsekit.core/PulseKit.Builder.build|build(){}[0]
         final fun collectionScope(kotlinx.coroutines/CoroutineScope): io.github.alirezajavan.pulsekit.core/PulseKit.Builder // io.github.alirezajavan.pulsekit.core/PulseKit.Builder.collectionScope|collectionScope(kotlinx.coroutines.CoroutineScope){}[0]
         final fun config(io.github.alirezajavan.pulsekit.core/PulseKitConfig): io.github.alirezajavan.pulsekit.core/PulseKit.Builder // io.github.alirezajavan.pulsekit.core/PulseKit.Builder.config|config(io.github.alirezajavan.pulsekit.core.PulseKitConfig){}[0]

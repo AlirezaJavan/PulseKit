@@ -8,6 +8,7 @@ import io.github.alirezajavan.pulsekit.core.PulseKit
 import io.github.alirezajavan.pulsekit.core.PulseKitLogger
 import io.github.alirezajavan.pulsekit.core.SyncStatusSnapshot
 import io.github.alirezajavan.pulsekit.core.db.createPulseKitDatabase
+import io.github.alirezajavan.pulsekit.core.processor.LocationPrecisionProcessor
 import io.github.alirezajavan.pulsekit.location.LocationConfig
 import io.github.alirezajavan.pulsekit.location.LocationDataSource
 import io.github.alirezajavan.pulsekit.motion.MotionConfig
@@ -104,6 +105,7 @@ class PulseKitApplication : Application() {
                 ),
             )
             .addDataSource(StepCounterDataSource(applicationContext, logger = logger))
+            .addEventProcessor(LocationPrecisionProcessor(decimalPlaces = 3))
             // Fails fast here, at process startup, with a message naming every missing manifest
             // permission/service/receiver declaration -- instead of a mismatched manifest
             // surfacing later as an opaque SecurityException from startForegroundService().

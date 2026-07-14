@@ -2,6 +2,7 @@ package io.github.alirezajavan.pulsekit.core
 
 import io.github.alirezajavan.pulsekit.core.db.PulseKitDatabase
 import io.github.alirezajavan.pulsekit.core.db.SensorEventLog
+import io.github.alirezajavan.pulsekit.core.processor.EventProcessor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -286,6 +287,7 @@ class PulseKit private constructor(
 
     class Builder(private val database: PulseKitDatabase) {
         private val sources = mutableListOf<RegisteredSource>()
+        private val processors = mutableListOf<EventProcessor>()
         private var config = PulseKitConfig()
         private var logger: PulseKitLogger = NoOpPulseKitLogger
         private var timeProvider: TimeProvider = SystemTimeProvider
@@ -308,6 +310,14 @@ class PulseKit private constructor(
 
         fun config(config: PulseKitConfig) = apply { this.config = config }
 
+        /**
+         * Adds an [EventProcessor] to the ingestion pipeline. Processors run in the order they
+         * are added and can transform or drop events before they reach storage.
+         */
+        fun addEventProcessor(processor: EventProcessor) = apply {
+            processors.add(processor)
+        }
+
         /** Wire your own Timber/Crashlytics/os_log-backed [PulseKitLogger]; defaults to silent. */
         fun logger(logger: PulseKitLogger) = apply { this.logger = logger }
 
@@ -328,6 +338,7 @@ class PulseKit private constructor(
                 logger = logger,
                 timeProvider = timeProvider,
                 idProvider = idProvider,
+                processors = processors.toList(),
             )
             // Persistence (ingestion + pruning) runs for the lifetime of PulseKit, independent of
             // whether any DataSource is collecting: recordEvent/recordEvents/observeEventCount/
