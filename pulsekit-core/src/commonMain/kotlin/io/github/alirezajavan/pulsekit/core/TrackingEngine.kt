@@ -3,6 +3,7 @@ package io.github.alirezajavan.pulsekit.core
 import io.github.alirezajavan.pulsekit.core.db.PulseKitDatabase
 import io.github.alirezajavan.pulsekit.core.db.SensorEventLog
 import io.github.alirezajavan.pulsekit.core.db.SensorEventStore
+import io.github.alirezajavan.pulsekit.core.processor.EventProcessor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -27,6 +28,7 @@ internal class TrackingEngine(
     private val logger: PulseKitLogger = NoOpPulseKitLogger,
     private val timeProvider: TimeProvider = SystemTimeProvider,
     private val idProvider: IdProvider = SystemIdProvider,
+    private val processors: List<EventProcessor> = emptyList(),
 ) : SyncSource {
     private val store = SensorEventStore(database)
 
@@ -115,7 +117,28 @@ internal class TrackingEngine(
                     batch.add(ingestionChannel.receive())
                 }
             }
-            store.insertEvents(batch)
+
+            val processedBatch = if (processors.isEmpty()) {
+                batch
+            } else {
+                batch.mapNotNull { event ->
+                    var current: SensorEventLog? = event
+                    for (processor in processors) {
+                        val beforeProcessing = current ?: break
+                        try {
+                            current = processor.process(beforeProcessing)
+                        } catch (e: Exception) {
+                            logger.error(TAG, "Processor failed; passing through unmodified", e)
+                            current = beforeProcessing
+                        }
+                    }
+                    current
+                }
+            }
+
+            if (processedBatch.isNotEmpty()) {
+                store.insertEvents(processedBatch)
+            }
         }
     }
 

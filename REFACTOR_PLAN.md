@@ -412,7 +412,7 @@ attractive as more than a black-box uploader.
 
 ---
 
-## Phase 13 — Event processing pipeline / interceptors (Not started)
+## Phase 13 — Event processing pipeline / interceptors (Completed)
 
 **Problem:** Events go straight from source to storage with no seam in between.
 `collectContinuously`/`collectPeriodically` call `engine.logSensorEvent(payload, source.id)`
@@ -425,41 +425,41 @@ the core more scalable by keeping cross-cutting logic out of `TrackingEngine`.
 
 ### Steps
 
-1. [ ] **`pulsekit-core/.../EventProcessor.kt`** (new file) — `fun interface EventProcessor {
+1. [x] **`pulsekit-core/.../EventProcessor.kt`** (new file) — `fun interface EventProcessor {
    fun process(event: SensorEventLog): SensorEventLog? }` where returning `null` drops the event.
    Keep it synchronous and pure (no suspend, no I/O) so it can't stall the ingestion path or the
    sensor callback thread; document that ordering is significant and processors run in registration
    order.
-2. [ ] Decide the seam deliberately (record the choice in an ADR-style note): run the chain **once,
+2. [x] Decide the seam deliberately (record the choice in an ADR-style note): run the chain **once,
    on the ingestion loop** inside `TrackingEngine.runIngestionLoop` (`TrackingEngine.kt:93`) right
    before `store.insertEvents(batch)` — *not* in `logSensorEvent`, which is called from sensor
    callback threads and must never do real work. Processing on the batch drain keeps producers
    cheap and gives processors a natural batch boundary.
-3. [ ] Register processors via `PulseKit.Builder.addEventProcessor(...)` (defaulted to empty list;
+3. [x] Register processors via `PulseKit.Builder.addEventProcessor(...)` (defaulted to empty list;
    additive constructor change, same rule as Phase 7). A drop (`null`) must decrement nothing that
    was never counted and must be logged at `debug` (not per-event `warn`, to avoid log floods under
    a dropping filter).
-4. [ ] Ship two built-in processors in `commonMain` as reference implementations + proof the seam
+4. [x] Ship two built-in processors in `commonMain` as reference implementations + proof the seam
    is ergonomic:
    - `SamplingProcessor(type, keepEveryNth)` — cheap downsampling for a chatty source.
    - `LocationPrecisionProcessor(decimalPlaces)` — rounds `Location.lat/lng` for privacy.
-5. [ ] **Sample-app showcase:** in `PulseKitApplication`, register a `LocationPrecisionProcessor`
+5. [x] **Sample-app showcase:** in `PulseKitApplication`, register a `LocationPrecisionProcessor`
    (e.g. 3 decimal places) and surface a `SettingsScreen` toggle explaining "coarse location" —
    demonstrating privacy-preserving collection without changing any data source.
 
 ### Edge cases to handle (and to write tests for)
 
-- **A processor that throws**: one misbehaving processor must not poison the whole ingestion loop
+- [x] **A processor that throws**: one misbehaving processor must not poison the whole ingestion loop
   and silently stop all persistence. Wrap each `process()` in a try/catch, log once per processor
   id, and pass the event through unmodified (fail-open) — a dropped batch is worse than an
   un-processed event. Test with a deliberately throwing processor.
-- **Chain that drops everything**: verify count/pruning/sync all behave sanely when a filter drops
+- [x] **Chain that drops everything**: verify count/pruning/sync all behave sanely when a filter drops
   100% of a source's events (no busy-loop, no stuck `PENDING_UPLOAD`).
-- **Ordering & idempotency**: `A then B` must observably differ from `B then A` where it should
+- [x] **Ordering & idempotency**: `A then B` must observably differ from `B then A` where it should
   (e.g. sample-then-redact vs redact-then-sample); lock ordering semantics with a test.
-- **Throughput**: re-run the existing `TrackingEngineStressTest` with a no-op processor registered
+- [x] **Throughput**: re-run the existing `TrackingEngineStressTest` with a no-op processor registered
   and confirm no material regression — the chain is on the hot path.
-- **`apiCheck`**: `EventProcessor`, the builtin processors, and `Builder.addEventProcessor` are new
+- [x] **`apiCheck`**: `EventProcessor`, the builtin processors, and `Builder.addEventProcessor` are new
   public API; `apiDump` and confirm `SensorEventLog` is/stays part of the intended public surface
   (it's now exposed to processor authors).
 

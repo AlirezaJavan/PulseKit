@@ -8,6 +8,7 @@ import io.github.alirezajavan.pulsekit.core.PulseKit
 import io.github.alirezajavan.pulsekit.core.PulseKitLogger
 import io.github.alirezajavan.pulsekit.core.SyncStatusSnapshot
 import io.github.alirezajavan.pulsekit.core.db.createPulseKitDatabase
+import io.github.alirezajavan.pulsekit.core.processor.LocationPrecisionProcessor
 import io.github.alirezajavan.pulsekit.location.LocationConfig
 import io.github.alirezajavan.pulsekit.location.LocationDataSource
 import io.github.alirezajavan.pulsekit.motion.MotionConfig
@@ -66,6 +67,11 @@ class PulseKitApplication : Application() {
     /** Current Wi-Fi-only sync policy; toggled from the Sync screen. */
     val requireUnmeteredNetwork: StateFlow<Boolean> = mutableRequireUnmeteredNetwork.asStateFlow()
 
+    private val mutableCoarseLocationEnabled = MutableStateFlow(true)
+
+    /** Whether location coordinates are rounded for privacy; toggled from Settings. */
+    val coarseLocationEnabled: StateFlow<Boolean> = mutableCoarseLocationEnabled.asStateFlow()
+
     private val mutableSyncEngine = MutableStateFlow<SyncEngine?>(null)
     private val mutableSyncConfig = MutableStateFlow(SyncConfig())
 
@@ -104,6 +110,11 @@ class PulseKitApplication : Application() {
                 ),
             )
             .addDataSource(StepCounterDataSource(applicationContext, logger = logger))
+            .addEventProcessor(
+                LocationPrecisionProcessor(
+                    decimalPlacesProvider = { if (mutableCoarseLocationEnabled.value) 3 else null },
+                ),
+            )
             // Fails fast here, at process startup, with a message naming every missing manifest
             // permission/service/receiver declaration -- instead of a mismatched manifest
             // surfacing later as an opaque SecurityException from startForegroundService().
@@ -137,6 +148,10 @@ class PulseKitApplication : Application() {
         mutableRequireUnmeteredNetwork.value = require
         mutableSyncEngine.value?.stop()
         startSyncEngine()
+    }
+
+    fun setCoarseLocationEnabled(enabled: Boolean) {
+        mutableCoarseLocationEnabled.value = enabled
     }
 
     private fun startSyncEngine() {
