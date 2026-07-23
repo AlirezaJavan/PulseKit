@@ -9,6 +9,8 @@ import io.github.alirezajavan.pulsekit.core.PulseKitLogger
 import io.github.alirezajavan.pulsekit.core.SyncStatusSnapshot
 import io.github.alirezajavan.pulsekit.core.db.createPulseKitDatabase
 import io.github.alirezajavan.pulsekit.core.processor.LocationPrecisionProcessor
+import io.github.alirezajavan.pulsekit.geofence.GeofenceProcessor
+import io.github.alirezajavan.pulsekit.geofence.GeofenceRegion
 import io.github.alirezajavan.pulsekit.location.LocationConfig
 import io.github.alirezajavan.pulsekit.location.LocationDataSource
 import io.github.alirezajavan.pulsekit.motion.MotionConfig
@@ -72,6 +74,13 @@ class PulseKitApplication : Application() {
     /** Whether location coordinates are rounded for privacy; toggled from Settings. */
     val coarseLocationEnabled: StateFlow<Boolean> = mutableCoarseLocationEnabled.asStateFlow()
 
+    val geofenceProcessor = GeofenceProcessor(
+        regions = listOf(
+            GeofenceRegion("google_plex", 37.4221, -122.0841, 200.0),
+            GeofenceRegion("apple_park", 37.3347, -122.0089, 200.0),
+        ),
+    )
+
     private val mutableSyncEngine = MutableStateFlow<SyncEngine?>(null)
     private val mutableSyncConfig = MutableStateFlow(SyncConfig())
 
@@ -115,6 +124,7 @@ class PulseKitApplication : Application() {
                     decimalPlacesProvider = { if (mutableCoarseLocationEnabled.value) 3 else null },
                 ),
             )
+            .addEventProcessor(geofenceProcessor)
             // Fails fast here, at process startup, with a message naming every missing manifest
             // permission/service/receiver declaration -- instead of a mismatched manifest
             // surfacing later as an opaque SecurityException from startForegroundService().

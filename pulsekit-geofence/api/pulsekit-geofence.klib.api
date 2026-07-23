@@ -1,0 +1,74 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <PulseKit:pulsekit-geofence>
+final class io.github.alirezajavan.pulsekit.geofence/GeofenceEvent { // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent|null[0]
+    constructor <init>(kotlin/String, io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.Transition, kotlin/Long) // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.<init>|<init>(kotlin.String;io.github.alirezajavan.pulsekit.geofence.GeofenceEvent.Transition;kotlin.Long){}[0]
+
+    final val regionId // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.regionId|{}regionId[0]
+        final fun <get-regionId>(): kotlin/String // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.regionId.<get-regionId>|<get-regionId>(){}[0]
+    final val timestamp // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.timestamp|{}timestamp[0]
+        final fun <get-timestamp>(): kotlin/Long // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.timestamp.<get-timestamp>|<get-timestamp>(){}[0]
+    final val transition // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.transition|{}transition[0]
+        final fun <get-transition>(): io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.Transition // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.transition.<get-transition>|<get-transition>(){}[0]
+
+    final fun component1(): kotlin/String // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.component1|component1(){}[0]
+    final fun component2(): io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.Transition // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.component2|component2(){}[0]
+    final fun component3(): kotlin/Long // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.component3|component3(){}[0]
+    final fun copy(kotlin/String = ..., io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.Transition = ..., kotlin/Long = ...): io.github.alirezajavan.pulsekit.geofence/GeofenceEvent // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.copy|copy(kotlin.String;io.github.alirezajavan.pulsekit.geofence.GeofenceEvent.Transition;kotlin.Long){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.toString|toString(){}[0]
+
+    final enum class Transition : kotlin/Enum<io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.Transition> { // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.Transition|null[0]
+        enum entry ENTER // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.Transition.ENTER|null[0]
+        enum entry EXIT // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.Transition.EXIT|null[0]
+
+        final val entries // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.Transition.entries|#static{}entries[0]
+            final fun <get-entries>(): kotlin.enums/EnumEntries<io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.Transition> // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.Transition.entries.<get-entries>|<get-entries>#static(){}[0]
+
+        final fun valueOf(kotlin/String): io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.Transition // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.Transition.valueOf|valueOf#static(kotlin.String){}[0]
+        final fun values(): kotlin/Array<io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.Transition> // io.github.alirezajavan.pulsekit.geofence/GeofenceEvent.Transition.values|values#static(){}[0]
+    }
+}
+
+final class io.github.alirezajavan.pulsekit.geofence/GeofenceProcessor : io.github.alirezajavan.pulsekit.core.processor/EventProcessor { // io.github.alirezajavan.pulsekit.geofence/GeofenceProcessor|null[0]
+    constructor <init>(kotlin.collections/List<io.github.alirezajavan.pulsekit.geofence/GeofenceRegion>, kotlin/Double = ..., kotlin/Float = ...) // io.github.alirezajavan.pulsekit.geofence/GeofenceProcessor.<init>|<init>(kotlin.collections.List<io.github.alirezajavan.pulsekit.geofence.GeofenceRegion>;kotlin.Double;kotlin.Float){}[0]
+
+    final val currentlyInside // io.github.alirezajavan.pulsekit.geofence/GeofenceProcessor.currentlyInside|{}currentlyInside[0]
+        final fun <get-currentlyInside>(): kotlinx.coroutines.flow/StateFlow<kotlin.collections/Set<kotlin/String>> // io.github.alirezajavan.pulsekit.geofence/GeofenceProcessor.currentlyInside.<get-currentlyInside>|<get-currentlyInside>(){}[0]
+    final val events // io.github.alirezajavan.pulsekit.geofence/GeofenceProcessor.events|{}events[0]
+        final fun <get-events>(): kotlinx.coroutines.flow/SharedFlow<io.github.alirezajavan.pulsekit.geofence/GeofenceEvent> // io.github.alirezajavan.pulsekit.geofence/GeofenceProcessor.events.<get-events>|<get-events>(){}[0]
+    final val regions // io.github.alirezajavan.pulsekit.geofence/GeofenceProcessor.regions|{}regions[0]
+        final fun <get-regions>(): kotlin.collections/List<io.github.alirezajavan.pulsekit.geofence/GeofenceRegion> // io.github.alirezajavan.pulsekit.geofence/GeofenceProcessor.regions.<get-regions>|<get-regions>(){}[0]
+
+    final fun process(io.github.alirezajavan.pulsekit.core.db/SensorEventLog): io.github.alirezajavan.pulsekit.core.db/SensorEventLog? // io.github.alirezajavan.pulsekit.geofence/GeofenceProcessor.process|process(io.github.alirezajavan.pulsekit.core.db.SensorEventLog){}[0]
+}
+
+final class io.github.alirezajavan.pulsekit.geofence/GeofenceRegion { // io.github.alirezajavan.pulsekit.geofence/GeofenceRegion|null[0]
+    constructor <init>(kotlin/String, kotlin/Double, kotlin/Double, kotlin/Double) // io.github.alirezajavan.pulsekit.geofence/GeofenceRegion.<init>|<init>(kotlin.String;kotlin.Double;kotlin.Double;kotlin.Double){}[0]
+
+    final val id // io.github.alirezajavan.pulsekit.geofence/GeofenceRegion.id|{}id[0]
+        final fun <get-id>(): kotlin/String // io.github.alirezajavan.pulsekit.geofence/GeofenceRegion.id.<get-id>|<get-id>(){}[0]
+    final val latitude // io.github.alirezajavan.pulsekit.geofence/GeofenceRegion.latitude|{}latitude[0]
+        final fun <get-latitude>(): kotlin/Double // io.github.alirezajavan.pulsekit.geofence/GeofenceRegion.latitude.<get-latitude>|<get-latitude>(){}[0]
+    final val longitude // io.github.alirezajavan.pulsekit.geofence/GeofenceRegion.longitude|{}longitude[0]
+        final fun <get-longitude>(): kotlin/Double // io.github.alirezajavan.pulsekit.geofence/GeofenceRegion.longitude.<get-longitude>|<get-longitude>(){}[0]
+    final val radiusMeters // io.github.alirezajavan.pulsekit.geofence/GeofenceRegion.radiusMeters|{}radiusMeters[0]
+        final fun <get-radiusMeters>(): kotlin/Double // io.github.alirezajavan.pulsekit.geofence/GeofenceRegion.radiusMeters.<get-radiusMeters>|<get-radiusMeters>(){}[0]
+
+    final fun component1(): kotlin/String // io.github.alirezajavan.pulsekit.geofence/GeofenceRegion.component1|component1(){}[0]
+    final fun component2(): kotlin/Double // io.github.alirezajavan.pulsekit.geofence/GeofenceRegion.component2|component2(){}[0]
+    final fun component3(): kotlin/Double // io.github.alirezajavan.pulsekit.geofence/GeofenceRegion.component3|component3(){}[0]
+    final fun component4(): kotlin/Double // io.github.alirezajavan.pulsekit.geofence/GeofenceRegion.component4|component4(){}[0]
+    final fun copy(kotlin/String = ..., kotlin/Double = ..., kotlin/Double = ..., kotlin/Double = ...): io.github.alirezajavan.pulsekit.geofence/GeofenceRegion // io.github.alirezajavan.pulsekit.geofence/GeofenceRegion.copy|copy(kotlin.String;kotlin.Double;kotlin.Double;kotlin.Double){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.github.alirezajavan.pulsekit.geofence/GeofenceRegion.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.github.alirezajavan.pulsekit.geofence/GeofenceRegion.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.github.alirezajavan.pulsekit.geofence/GeofenceRegion.toString|toString(){}[0]
+}
+
+final fun io.github.alirezajavan.pulsekit.geofence/haversineMeters(kotlin/Double, kotlin/Double, kotlin/Double, kotlin/Double): kotlin/Double // io.github.alirezajavan.pulsekit.geofence/haversineMeters|haversineMeters(kotlin.Double;kotlin.Double;kotlin.Double;kotlin.Double){}[0]

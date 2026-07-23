@@ -29,6 +29,7 @@ import io.github.alirezajavan.pulsekit.core.PulseKit
 import io.github.alirezajavan.pulsekit.core.SensorPayload
 import io.github.alirezajavan.pulsekit.core.MotionSample
 import io.github.alirezajavan.pulsekit.demo.BluetoothScreen
+import io.github.alirezajavan.pulsekit.demo.GeofenceScreen
 import io.github.alirezajavan.pulsekit.demo.HistoryScreen
 import io.github.alirezajavan.pulsekit.demo.HomeScreen
 import io.github.alirezajavan.pulsekit.demo.PulseKitDestination
@@ -187,6 +188,12 @@ private fun PulseKitApp(
                     pulseKit = pulseKit,
                     permissionController = permissionController,
                     onStartSource = onStartSource,
+                )
+            }
+            composable(PulseKitDestination.Geofence.route) {
+                GeofenceScreen(
+                    processor = app.geofenceProcessor,
+                    regions = app.geofenceProcessor.regions,
                 )
             }
             composable(PulseKitDestination.Sync.route) {

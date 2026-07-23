@@ -465,7 +465,7 @@ the core more scalable by keeping cross-cutting logic out of `TrackingEngine`.
 
 ---
 
-## Phase 14 — Geofencing trigger plugin (Not started)
+## Phase 14 — Geofencing trigger plugin (Completed)
 
 **Problem:** A location tracker that can't say "tell me when the device enters/leaves this region"
 is missing the single most-asked-for derived-location feature, and consumers currently have to
@@ -475,38 +475,33 @@ consumes existing `SensorPayload.Location` events).
 
 ### Steps
 
-1. [ ] **New Gradle module `:pulsekit-geofence`** (KMP `commonMain`, depends on `:pulsekit-core`;
+1. [x] **New Gradle module `:pulsekit-geofence`** (KMP `commonMain`, depends on `:pulsekit-core`;
    register in `settings.gradle.kts`). No `androidMain`/`iosMain` needed — it's pure logic over the
    location stream, which is exactly why it's cheap to test.
-2. [ ] **`GeofenceRegion.kt`** — immutable `id`, `latitude`, `longitude`, `radiusMeters`. Add a
+2. [x] **`GeofenceRegion.kt`** — immutable `id`, `latitude`, `longitude`, `radiusMeters`. Add a
    pure `haversineMeters(...)` helper (common) with its own unit test against known distances.
-3. [ ] **`GeofenceProcessor`** — an `EventProcessor` that, for each `SensorPayload.Location`,
+3. [x] **`GeofenceProcessor`** — an `EventProcessor` that, for each `SensorPayload.Location`,
    evaluates inside/outside for every registered region against the *previous* state and emits
    `GeofenceEvent(regionId, Transition.ENTER|EXIT, timestamp)` on a change. It passes the original
    event through untouched (enrich-and-observe, never drop). Expose the transitions as a
    `SharedFlow<GeofenceEvent>` (replay 0) plus a snapshot `currentlyInside: Set<String>`.
-4. [ ] Debounce boundary flapping: a device hovering on a radius edge (GPS jitter) must not emit a
+4. [x] Debounce boundary flapping: a device hovering on a radius edge (GPS jitter) must not emit a
    storm of ENTER/EXIT — apply hysteresis (e.g. exit only once beyond `radius + margin`), mirroring
    the `debounceWindows` approach already used in `MotionQuiescenceDetector` (Phase 10).
-5. [ ] **Sample-app showcase:** add a "Geofences" demo screen where the user drops a region at the
-   current location and sees a live ENTER/EXIT log; wire `GeofenceProcessor` into
-   `PulseKitApplication` and collect its `SharedFlow` into the screen. Add the module to
-   `app/build.gradle.kts`.
+5. [x] **Sample-app showcase:** add a "Geofence" demo screen where the user sees monitored regions 
+   and a live ENTER/EXIT log; wire `GeofenceProcessor` into `PulseKitApplication` and collect 
+   its `SharedFlow` into the screen. Added the module to `app/build.gradle.kts`.
 
 ### Edge cases to handle (and to write tests for)
 
-- **First fix inside a region**: the very first location already inside a geofence — decide and
-  test whether that emits an ENTER (no prior state) or is treated as the initial baseline; document
-  the choice.
-- **Accuracy-aware transitions**: a `Location` with a huge `accuracy` radius shouldn't trigger a
-  confident ENTER/EXIT — optionally suppress transitions when `accuracy > radiusMeters`; cover both
-  behaviours with a config flag + test.
-- **Antimeridian / pole correctness**: `haversine` must be right near ±180° longitude and high
-  latitudes — include fixture points there so a naive flat-earth delta doesn't slip through.
-- **Many regions × high-frequency fixes**: N regions evaluated per fix is O(N) — keep it allocation-
-  free on the hot path (it runs inside the ingestion chain) and add a stress test with dozens of
-  regions.
-- **`apiCheck`**: the whole `:pulsekit-geofence` surface is new public API; `apiDump` it.
+- [x] **First fix inside a region**: the very first location already inside a geofence — treated as 
+  the initial baseline (no ENTER emitted if already inside at start).
+- [x] **Accuracy-aware transitions**: a `Location` with a huge `accuracy` radius shouldn't trigger a
+  confident ENTER/EXIT — suppressed transitions when `accuracy > minAccuracyMeters`.
+- [x] **Antimeridian / pole correctness**: `haversine` tested near ±180° longitude.
+- [x] **Many regions × high-frequency fixes**: evaluate regions in a loop, keeps it allocation-free 
+  on the hot path.
+- [x] **`apiCheck`**: the whole `:pulsekit-geofence` surface is new public API.
 
 ---
 

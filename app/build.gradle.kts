@@ -10,8 +10,8 @@ extensions.configure<ApplicationExtension> {
 
     defaultConfig {
         applicationId = "io.github.alirezajavan.pulsekit"
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 3
+        versionName = "1.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField(
@@ -44,6 +44,7 @@ dependencies {
     implementation(project(":pulsekit-sync"))
     implementation(project(":pulsekit-ui"))
     implementation(project(":pulsekit-export"))
+    implementation(project(":pulsekit-geofence"))
     implementation(libs.ktor.client.okhttp)
 
     implementation(libs.androidx.core.ktx)
@@ -56,6 +57,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.datetime)
 
     testImplementation(libs.junit)
     testImplementation(kotlin("test"))
